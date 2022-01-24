@@ -44,7 +44,7 @@ namespace Mineclone {
 		template <typename T>
 		void debug(const T& message) {
 			if(m_logLevel >= LogLevel::Debug)
-				printColored("[DEBUG] " + m_name + ": " + message, Color::DarkGreyg);
+				printColored("[DEBUG] " + m_name + ": " + message, Color::DarkGrey);
 		}
 
 	private:
