@@ -15,6 +15,5 @@ namespace Mineclone {
 		glfwPollEvents();
 	}
 
-	Application::~Application() {	
-	}
+	Application::~Application() = default;
 }

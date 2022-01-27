@@ -10,7 +10,8 @@ namespace Mineclone {
 	class Window {
 	public:
 
-		Window(std::string title, int width, int height);
+		Window(const std::string& title, const int width, const int height);
+		Window(const Window& window);
 		Window();
 		~Window();
 
@@ -37,10 +38,10 @@ namespace Mineclone {
 
 		void run() const;
 
-		void setVSync(bool enabled);
+		void setVSync(const bool enabled);
 		void setResizeCallback(void(*resizeCallback)(int width, int height));
 		void setCloseCallback(void(*closeCallback)());
-		///	 key: the key pressed
+		///	 <param name="key">the key pressed</param>
 		///  <param name="scancode">the location of the key</param>
 	    ///  <param name="action">press, release or hold</param>
 	    ///  <param name="mods"alt, shift, alt+gr, lctrl, rctrl</param>
@@ -49,16 +50,17 @@ namespace Mineclone {
 		void setMouseButtonCallback(void(*mouseButtonCallback)(int button, int action, int mods));
 		void setScrollCallback(void(*scrollCallback)(double x, double y));
 		void setMouseMoveCallback(void(*mouseMoveCallback)(double x, double y));
-		void setMainLoopCallback(std::function<void(GLFWwindow*)> mainLoopCallback);
+		void setMainLoopCallback(const std::function<void(GLFWwindow*)>& mainLoopCallback);
 
 	private:
 		void createWindow(const std::string& title, int width, int height);
-		void init();
-		void setCallbacks();
-		
+		void init() const;
+		void setCallbacks() const;
+
+		// TODO: log an error if no main loop callback
 		std::function<void(GLFWwindow*)> m_mainLoopCallback;
-		Log& m_logger;
 		WindowData m_windowData;
+		Log& m_logger;
 		bool m_vsync = true;
 	};
 }
