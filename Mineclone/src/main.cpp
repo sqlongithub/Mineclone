@@ -1,7 +1,6 @@
 #include <iostream>
 
 #include "Mineclone/Application.h"
-#include "Mineclone/Log.h"
 
 /* Programming guidelines, collapse.
  Folder structure is the same as namespace i.e Mineclone/Application.h

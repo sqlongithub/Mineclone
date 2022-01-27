@@ -1,25 +1,25 @@
 #include <string>
-#include <iostream>
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include "Window.h"
-#include "Log.h"
 
 // Inspiration taken from the Hazel Game engine by TheCherno:
 // https://github.com/TheCherno/Hazel/blob/master/Hazel/src/Platform/Windows/WindowsWindow.cpp
 namespace Mineclone {
 
 	Window::Window(std::string title, int width, int height)
-		: m_windowData(WindowData { nullptr, title, width, height }), m_logger("Window") {
+		: m_windowData(WindowData { nullptr, title, width, height, Log("Window") }), 
+		  m_logger(m_windowData.logger) {
 
 		init();
 		createWindow(title, width, height);
 	}
 
 	Window::Window()
-		: m_windowData(WindowData {}) {
+		: m_windowData(WindowData { nullptr, "Window", 800, 600, Log("Window")}),
+		  m_logger(m_windowData.logger) {
 
 		init();
 		createWindow(m_windowData.title, m_windowData.width, m_windowData.height);
@@ -55,48 +55,99 @@ namespace Mineclone {
 
 		glfwSetWindowUserPointer(m_windowData.window, &m_windowData);
 
+		setCallbacks();
+	}
+
+	void Window::setCallbacks() {
 		glfwSetWindowSizeCallback(m_windowData.window, [](GLFWwindow* window, int width, int height) {
 			WindowData& windowData = *(WindowData*)glfwGetWindowUserPointer(window);
 			windowData.width = width;
 			windowData.height = height;
-			
+
 			windowData.resizeCallback(width, height);
 		});
 
-		
+		glfwSetWindowCloseCallback(m_windowData.window, [](GLFWwindow* window) {
+			const WindowData& windowData = *(WindowData*)glfwGetWindowUserPointer(window);
+			close(windowData.window, "Window closed by user");
+			windowData.closeCallback();
+		});
+
+		glfwSetKeyCallback(m_windowData.window, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+			const WindowData& windowData = *(WindowData*)glfwGetWindowUserPointer(window);
+			windowData.keyCallback(key, scancode, action, mods);
+		});
+
+		glfwSetCharCallback(m_windowData.window, [](GLFWwindow* window, unsigned int key) {
+			const WindowData& windowData = *(WindowData*)glfwGetWindowUserPointer(window);
+			windowData.charCallback(key);
+		});
+
+		glfwSetMouseButtonCallback(m_windowData.window, [](GLFWwindow* window, int button, int action, int mods) {
+			const WindowData& windowData = *(WindowData*)glfwGetWindowUserPointer(window);
+			windowData.mouseButtonCallback(button, action, mods);
+		});
+
+		glfwSetScrollCallback(m_windowData.window, [](GLFWwindow* window, double x, double y) {
+			const WindowData& windowData = *(WindowData*)glfwGetWindowUserPointer(window);
+			windowData.scrollCallback(x, y);
+		});
+
+		glfwSetCursorPosCallback(m_windowData.window, [](GLFWwindow* window, double x, double y) {
+			const WindowData& windowData = *(WindowData*)glfwGetWindowUserPointer(window);
+			windowData.mouseMoveCallback(x, y);
+		});
 	}
 
-	void Window::setResizeCallback(std::function<void(int width, int height)> resizeCallback) {
+	void Window::setMainLoopCallback(std::function<void(GLFWwindow*)> mainLoopCallback) {
+		m_mainLoopCallback = mainLoopCallback;
+	}
+
+	void Window::setResizeCallback(void(*resizeCallback)(int width, int height)) {
 		m_windowData.resizeCallback = resizeCallback;
 	}
 
-	void Window::setCloseCallback(std::function<void()> closeCallback) {
+	void Window::setCloseCallback(void(*closeCallback)()) {
 		m_windowData.closeCallback = closeCallback;
 	}
 
-	void Window::setKeyCallback(std::function<void(int key, int scancode, int action, int mods)> keyCallback) {
+	void Window::setKeyCallback(void(*keyCallback)(int key, int scancode, int action, int mods)) {
 		m_windowData.keyCallback = keyCallback;
 	}
 
-	void Window::setCharCallback(std::function<void(unsigned int key)> charCallback) {
+	void Window::setCharCallback(void(*charCallback)(unsigned int key)) {
 		m_windowData.charCallback = charCallback;
 	}
 
-	void Window::setMouseButtonCallback(std::function<void(int button, int action, int mods)> mouseClickCallback) {
-		m_windowData.mouseClickCallback = mouseClickCallback;
+	void Window::setMouseButtonCallback(void(*mouseButtonCallback)(int button, int action, int mods)) {
+		m_windowData.mouseButtonCallback = mouseButtonCallback;
 	}
 
-	void Window::setScrollCallback(std::function<void(double x, double y)> scrollCallback) {
+	void Window::setScrollCallback(void(*scrollCallback)(double x, double y)) {
 		m_windowData.scrollCallback = scrollCallback;
 	}
 
-	void Window::setMouseMoveCallback(std::function<void(double x, double y)> mouseMoveCallback) {
+	void Window::setMouseMoveCallback(void(*mouseMoveCallback)(double x, double y)) {
 		m_windowData.mouseMoveCallback = mouseMoveCallback;
 	}
 
-	void Window::close(const std::string& reason) {
+	void Window::run() const
+	{
+		while(!glfwWindowShouldClose(m_windowData.window)) {
+			m_mainLoopCallback(m_windowData.window);
+		}
+	}
+
+	void Window::close(const std::string& reason) const {
 		glfwDestroyWindow(m_windowData.window);
-		m_logger.info("Window closed");
+		m_logger.info("Window closed: " + reason);
+	}
+
+	void Window::close(GLFWwindow* window, const std::string& reason) {
+		// TODO: maybe we should log the title of the window?
+		WindowData& windowData = *(WindowData*)glfwGetWindowUserPointer(window);
+		glfwDestroyWindow(window);
+		windowData.logger.info("Window closed: " + reason);
 	}
 
 	void Window::setVSync(bool enabled) {

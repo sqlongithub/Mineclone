@@ -1,5 +1,4 @@
 #pragma once 
-#include <iostream>
 
 #include <GLFW/glfw3.h>
 
@@ -9,9 +8,11 @@
 namespace Mineclone {
 	class Application {
 	public:
-		Application(const std::string& title, int width, int height);
+		Application(const std::string& title, const int width, const int height);
 		~Application();
 	private:
+		void mainLoop(GLFWwindow* window);
+
 		Window m_window;
 		Log m_logger;
 	};
