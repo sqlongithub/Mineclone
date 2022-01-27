@@ -39,17 +39,13 @@ namespace Mineclone {
 		void run() const;
 
 		void setVSync(const bool enabled);
-		void setResizeCallback(void(*resizeCallback)(int width, int height));
-		void setCloseCallback(void(*closeCallback)());
-		///	 <param name="key">the key pressed</param>
-		///  <param name="scancode">the location of the key</param>
-	    ///  <param name="action">press, release or hold</param>
-	    ///  <param name="mods"alt, shift, alt+gr, lctrl, rctrl</param>
-		void setKeyCallback(void(*keyCallback)(int key, int scancode, int action, int mods));
-		void setCharCallback(void(*charCallback)(unsigned int key));
-		void setMouseButtonCallback(void(*mouseButtonCallback)(int button, int action, int mods));
-		void setScrollCallback(void(*scrollCallback)(double x, double y));
-		void setMouseMoveCallback(void(*mouseMoveCallback)(double x, double y));
+		void setResizeCallback(const std::function<void(int width, int height)>& resizeCallback);
+		void setCloseCallback(const std::function<void()>& closeCallback);
+		void setKeyCallback(const std::function<void(int key, int scancode, int action, int mods)>& keyCallback);
+		void setCharCallback(const std::function<void(unsigned int key)>& charCallback);
+		void setMouseButtonCallback(const std::function<void(int button, int action, int mods)>& mouseButtonCallback);
+		void setScrollCallback(const std::function<void(double x, double y)>& scrollCallback);
+		void setMouseMoveCallback(const std::function<void(double x, double y)>& mouseMoveCallback);
 		void setMainLoopCallback(const std::function<void(GLFWwindow*)>& mainLoopCallback);
 
 	private:

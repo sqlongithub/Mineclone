@@ -7,13 +7,28 @@ namespace Mineclone {
 		: m_window(Window(title, width, height)), m_logger("Application") {
 		m_logger.info("Application launching");
 		m_window.setMainLoopCallback([this](GLFWwindow* window) { mainLoop(window); });
+		m_window.setKeyCallback([this](const int key, const int scancode, const int action, const int mods) { onKey(key, scancode, action, mods); });
 		m_window.run(); // Keep the application running
 	}
 
 	void Application::mainLoop(GLFWwindow* window) {
 		glfwSwapBuffers(window);
 		glfwPollEvents();
+
+		glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
+		glClear(GL_COLOR_BUFFER_BIT);
 	}
 
-	Application::~Application() = default;
+	void Application::onKey(int key, int scancode, int action, int mods)
+	{
+		if(key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
+		{
+			m_window.close("User exited");
+		}
+	}
+
+	Application::~Application()
+	{
+		glfwTerminate();
+	};
 }

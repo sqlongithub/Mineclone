@@ -111,31 +111,31 @@ namespace Mineclone {
 		m_mainLoopCallback = mainLoopCallback;
 	}
 
-	void Window::setResizeCallback(void(*resizeCallback)(int width, int height)) {
+	void Window::setResizeCallback(const std::function<void(int width, int height)>& resizeCallback) {
 		m_windowData.resizeCallback = resizeCallback;
 	}
 
-	void Window::setCloseCallback(void(*closeCallback)()) {
+	void Window::setCloseCallback(const std::function<void()>& closeCallback) {
 		m_windowData.closeCallback = closeCallback;
 	}
 
-	void Window::setKeyCallback(void(*keyCallback)(int key, int scancode, int action, int mods)) {
+	void Window::setKeyCallback(const std::function<void(int key, int scancode, int action, int mods)>& keyCallback) {
 		m_windowData.keyCallback = keyCallback;
 	}
 
-	void Window::setCharCallback(void(*charCallback)(unsigned int key)) {
+	void Window::setCharCallback(const std::function<void(unsigned int key)>& charCallback) {
 		m_windowData.charCallback = charCallback;
 	}
 
-	void Window::setMouseButtonCallback(void(*mouseButtonCallback)(int button, int action, int mods)) {
+	void Window::setMouseButtonCallback(const std::function<void(int button, int action, int mods)>& mouseButtonCallback) {
 		m_windowData.mouseButtonCallback = mouseButtonCallback;
 	}
 
-	void Window::setScrollCallback(void(*scrollCallback)(double x, double y)) {
+	void Window::setScrollCallback(const std::function<void(double x, double y)>& scrollCallback) {
 		m_windowData.scrollCallback = scrollCallback;
 	}
 
-	void Window::setMouseMoveCallback(void(*mouseMoveCallback)(double x, double y)) {
+	void Window::setMouseMoveCallback(const std::function<void(double x, double y)>& mouseMoveCallback) {
 		m_windowData.mouseMoveCallback = mouseMoveCallback;
 	}
 
@@ -147,6 +147,7 @@ namespace Mineclone {
 	}
 
 	void Window::close(const std::string& reason) const {
+		glfwSetWindowShouldClose(m_windowData.window, true);
 		glfwDestroyWindow(m_windowData.window);
 		m_logger.info("Window closed: " + reason);
 	}
@@ -154,6 +155,7 @@ namespace Mineclone {
 	void Window::close(GLFWwindow* window, const std::string& reason) {
 		// TODO: maybe we should log the title of the window?
 		WindowData& windowData = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
+		glfwSetWindowShouldClose(window, true);
 		glfwDestroyWindow(window);
 		windowData.logger.info("Window closed: " + reason);
 	}

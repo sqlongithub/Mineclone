@@ -12,6 +12,7 @@ namespace Mineclone {
 		~Application();
 	private:
 		void mainLoop(GLFWwindow* window);
+		void onKey(int key, int scancode, int action, int mods);
 
 		Window m_window;
 		Log m_logger;
