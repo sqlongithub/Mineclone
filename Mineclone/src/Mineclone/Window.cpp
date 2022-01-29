@@ -51,8 +51,7 @@ namespace Mineclone {
 		m_windowData.window = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
 		glfwMakeContextCurrent(m_windowData.window);
 
-		if(!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress)))
-		{
+		if(!gladLoadGLLoader(reinterpret_cast<GLADloadproc>(glfwGetProcAddress))) {
 			m_logger.error("Failed to initialize GLAD");
 			exit(-1);
 		}

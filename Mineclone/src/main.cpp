@@ -6,13 +6,6 @@
  Folder structure is the same as namespace i.e Mineclone/Application.h
  is in the folder Mineclone/
 
- Include sorting:
-	STL and std headers
- 
-	3rd-party libraries
-
-	User-defined headers
-
  Do not use "using namespace std::" 
  Always use #pragma once
 */
@@ -28,4 +21,5 @@ int main() {
 #endif
 
 	Application application("Mineclone", 1920, 1080);
+
 }

@@ -1,4 +1,5 @@
 #pragma once 
+#include <chrono>
 
 #include <GLFW/glfw3.h>
 
@@ -12,7 +13,14 @@ namespace Mineclone {
 		~Application();
 	private:
 		void mainLoop(GLFWwindow* window);
+		void printFPS();
 		void onKey(int key, int scancode, int action, int mods);
+
+		double m_deltaTime;
+		double m_lastFrame;
+		std::chrono::time_point<std::chrono::steady_clock> m_startTime;
+		bool m_logFPS = true;
+		bool m_running = true;
 
 		Window m_window;
 		Log m_logger;
