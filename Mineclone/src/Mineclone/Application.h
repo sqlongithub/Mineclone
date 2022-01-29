@@ -19,7 +19,7 @@ namespace Mineclone {
 		double m_deltaTime;
 		double m_lastFrame;
 		std::chrono::time_point<std::chrono::steady_clock> m_startTime;
-		bool m_logFPS = true;
+		bool m_logFPS = false;
 		bool m_running = true;
 
 		Window m_window;
