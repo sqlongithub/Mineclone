@@ -9,15 +9,11 @@
 #include "Shader.h"
 
 namespace Mineclone {
-	Shader::Shader(const std::string& vertexShader, const std::string& fragmentShader)
+	Shader::Shader(const std::string& source)
 		: m_logger("Shader") {
-		std::unordered_map<GLenum, std::string> sources;
-		sources[GL_VERTEX_SHADER] = vertexShader;
-		sources[GL_FRAGMENT_SHADER] = fragmentShader;
-
-		unsigned int vs = compileShader(GL_VERTEX_SHADER, sources[GL_VERTEX_SHADER]);
-		unsigned int fs = compileShader(GL_FRAGMENT_SHADER, sources[GL_FRAGMENT_SHADER]);
-		createProgram(vs, fs);
+		std::unordered_map<GLenum, std::string> sources = separateShaders(source);
+		std::unordered_map<GLenum, unsigned int> shaders = compileShaders(sources);
+		createProgram(shaders[GL_VERTEX_SHADER], shaders[GL_FRAGMENT_SHADER]);
 		glUseProgram(m_program);
 	}
 
@@ -25,37 +21,73 @@ namespace Mineclone {
 		glDeleteProgram(m_program);
 	}
 
+	std::unordered_map<GLenum, std::string> Shader::separateShaders(const std::string& shaderFile) {
+		// Courtesy of Hazel's Shader class
+		std::unordered_map<GLenum, std::string> shaderSources;
+
+		const char* typeToken = "#type";
+
+		const std::string& source = readShaderFile(shaderFile);
+
+		size_t typeTokenLength = strlen(typeToken);
+		size_t pos = source.find(typeToken, 0); //Start of shader type declaration line
+
+		while(pos != std::string::npos) {
+			size_t eol = source.find_first_of("\r\n", pos); //End of shader type declaration line
+			if(eol == std::string::npos) {
+				m_logger.error("Could not separate shaders: Syntax error in shader");
+			}
+			size_t begin = pos + typeTokenLength + 1; //Start of shader type name (after "#type " keyword)
+			std::string type = source.substr(begin, eol - begin);
+			if(!shaderTypeFromString(type)) {
+				m_logger.error("Could not separate shaders: Invalid shader type specified");
+			}
+
+			size_t nextLinePos = source.find_first_not_of("\r\n", eol); //Start of shader code after shader type declaration line
+			if(nextLinePos == std::string::npos) {
+				m_logger.error("Could not separate shaders: Syntax error");
+			}
+			pos = source.find(typeToken, nextLinePos); //Start of next shader type declaration line
+
+			shaderSources[shaderTypeFromString(type)] = (pos == std::string::npos) ? source.substr(nextLinePos) : source.substr(nextLinePos, pos - nextLinePos);
+		}
+
+		return shaderSources;
+	}
+
 	std::string Shader::readShaderFile(const std::string& source) {
-		std::ifstream file(source);
+		std::ifstream file(source, std::ios::in | std::ios::binary);
 		std::stringstream buffer;
 		buffer << file.rdbuf();
 
 		return buffer.str();
 	}
 
-	unsigned int Shader::compileShader(GLenum type, const std::string& source) {
-		unsigned int shader = glCreateShader(type);
-		const std::string& content = readShaderFile(source);
-		const char* src = content.c_str();
-		glShaderSource(shader, 1, &src, nullptr);
-		glCompileShader(shader);
+	std::unordered_map<GLenum, unsigned int> Shader::compileShaders(const std::unordered_map<GLenum, std::string>& sources) {
+		std::unordered_map<GLenum, unsigned int> output;
 
-		int result;
-		glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
-		if(result == GL_FALSE) {
-			int length;
-			glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
-			char* message = (char*)alloca(length * sizeof(char));
-			glGetShaderInfoLog(shader, length, &length, message);
+		for(auto&& [type, source] : sources) {
+			unsigned int shader = glCreateShader(type);
+			const char* src = source.c_str();
+			glShaderSource(shader, 1, &src, nullptr);
+			glCompileShader(shader);
 
-			m_logger.error("Failed to compile shader: " + shaderTypeToString(type) + " at \"" + source + "\"");
-			m_logger.error(message);
+			int result;
+			glGetShaderiv(shader, GL_COMPILE_STATUS, &result);
+			if(result == GL_FALSE) {
+				int length;
+				glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
+				char* message = (char*)alloca(length * sizeof(char));
+				glGetShaderInfoLog(shader, length, &length, message);
 
-			glDeleteShader(shader);
-			return 0;
+				m_logger.error("Failed to compile shader: " + shaderTypeToString(type) + " at \"" + source + "\"");
+				m_logger.error(message);
+
+			}
+			output[type] = shader;
 		}
 
-		return shader;
+		return output;
 	}
 
 	void Shader::createProgram(unsigned int vertexShader, unsigned int fragmentShader) {

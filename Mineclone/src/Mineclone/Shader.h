@@ -5,7 +5,7 @@
 namespace Mineclone {
 	class Shader {
 	public:
-		Shader(const std::string& vertexShader, const std::string& fragmentShader);
+		Shader(const std::string& source);
 		~Shader();
 	private:
 		// Utils
@@ -16,11 +16,25 @@ namespace Mineclone {
 				return "Fragment Shader";
 			}
 			m_logger.error("Type \"" + type + std::string("\" is not GL_VERTEX_SHADER or GL_FRAGMENT_SHADER"));
+			return "Unkown";
 		}
 
+		GLenum shaderTypeFromString(const std::string& type) {
+			if(type == "vertex") {
+				return GL_VERTEX_SHADER;
+			}
+			else if(type == "fragment") {
+				return GL_FRAGMENT_SHADER;
+			}
+			m_logger.error("Type \"" + type + std::string("\" is not vertex or fragment"));
+			return 0;
+		}
+
+		std::unordered_map<GLenum, std::string> separateShaders(const std::string& source);
 		std::string readShaderFile(const std::string& source);
 
-		unsigned int compileShader(GLenum type, const std::string& source);
+
+		std::unordered_map<GLenum, unsigned int> compileShaders(const std::unordered_map<GLenum, std::string>& sources);
 		void createProgram(unsigned int vertexShader, unsigned int fragmentShader);
 
 		Log m_logger;

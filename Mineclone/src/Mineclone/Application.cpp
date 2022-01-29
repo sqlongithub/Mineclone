@@ -16,9 +16,9 @@ namespace Mineclone {
 		m_window.setKeyCallback([this](const int key, const int scancode, const int action, const int mods) { onKey(key, scancode, action, mods); });
 
 		float vertices[3*6] = {
-		-0.35f, -0.5f, 0.0f,		1.0f, 0.0f, 0.0f,
-		0.35f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,
-		0.0f, 0.5f, 0.0f,		0.0f, 0.0f, 1.0f
+			-0.35f, -0.5f, 0.0f,		1.0f, 0.0f, 0.0f,
+			0.35f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f,
+			0.0f, 0.5f, 0.0f,		0.0f, 0.0f, 1.0f
 		};
 
 		unsigned int buffer;
@@ -31,7 +31,7 @@ namespace Mineclone {
 		glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
 		glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
 
-		Shader shader("src\\Shaders\\vertexShader.glsl", "src\\Shaders\\fragmentShader.glsl");
+		Shader shader("src/Shaders/triangle.glsl");
 
 		m_window.setVSync(true);
 		m_startTime = std::chrono::steady_clock::now();
