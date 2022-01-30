@@ -12,6 +12,8 @@ void main() {
 	vertexColor = color;
 }
 
+
+
 #type fragment
 
 #version 330 core

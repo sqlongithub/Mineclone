@@ -57,6 +57,9 @@ namespace Mineclone {
 
 	std::string Shader::readShaderFile(const std::string& source) {
 		std::ifstream file(source, std::ios::in | std::ios::binary);
+		if(!file.is_open()) {
+			m_logger.error("Could not open shader at \"" + source + "\"");
+		}
 		std::stringstream buffer;
 		buffer << file.rdbuf();
 

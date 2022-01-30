@@ -71,6 +71,7 @@ namespace Mineclone {
 			windowData.width = width;
 			windowData.height = height;
 
+			glViewport(0, 0, width, height);
 			windowData.resizeCallback(width, height);
 		});
 

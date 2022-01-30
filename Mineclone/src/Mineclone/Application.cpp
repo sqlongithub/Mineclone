@@ -15,10 +15,10 @@ namespace Mineclone {
 		{
 			// triangles * vertices per triangle * data per triangle
 			float vertices[2 * 3 * 6] = {
-				-0.5f, -0.5f, 0.0f,		1.0f, 0.0f, 0.0f, // 0
-				0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.0f, // 1
-				0.5f, 0.5f, 0.0f,		0.0f, 0.0f, 1.0f, // 2
-				-0.5f, 0.5f, 0.0f,		1.0f, 0.0f, 0.0f  // 3
+				-0.5f, -0.5f, 0.0f,		1.0f, 0.5f, 0.0f, // 0
+				0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.5f, // 1
+				0.5f, 0.5f, 0.0f,		0.5f, 0.0f, 1.0f, // 2
+				-0.5f, 0.5f, 0.0f,		1.0f, 0.0f, 0.5f  // 3
 			};
 
 			unsigned int indices[2 * 3] = {
@@ -41,7 +41,7 @@ namespace Mineclone {
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-			Shader shader("src/Shaders/BasicGradient.glsl");
+			Shader shader("assets/shaders/BasicGradient.glsl");
 
 			m_window.setVSync(true);
 			m_window.setMainLoopCallback([this](GLFWwindow* window) {
