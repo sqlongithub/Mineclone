@@ -55,7 +55,7 @@ namespace Mineclone {
 
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, sizeof(float) * 3, 0);
 
 			unsigned int ibo;
 			glGenBuffers(1, &ibo);
