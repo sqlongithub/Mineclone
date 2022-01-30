@@ -3,6 +3,7 @@
 #include <thread>
 
 #include <glad/glad.h>
+#include <glm/gtx/color_space.hpp>
 
 #include "Application.h"
 #include "OpenGL/Shader.h"
@@ -34,12 +35,12 @@ namespace Mineclone {
 		m_logger.info("Application launching");
 
 		{
-			// triangles * vertices per triangle * data per triangle
-			float vertices[2 * 3 * 6] = {
-				-0.5f, -0.5f, 0.0f,		1.0f, 0.5f, 0.0f, // 0
-				0.5f, -0.5f, 0.0f,		0.0f, 1.0f, 0.5f, // 1
-				0.5f, 0.5f, 0.0f,		0.5f, 0.0f, 1.0f, // 2
-				-0.5f, 0.5f, 0.0f,		1.0f, 0.0f, 0.5f  // 3
+			// vertices * data per vertex
+			float vertices[4 * 3] = {
+				-0.5f, -0.5f, 0.0f,
+				0.5f, -0.5f, 0.0f,
+				0.5f, 0.5f, 0.0f,
+				-0.5f, 0.5f, 0.0f,
 			};
 
 			unsigned int indices[2 * 3] = {
@@ -54,15 +55,14 @@ namespace Mineclone {
 
 			glEnableVertexAttribArray(0);
 			glEnableVertexAttribArray(1);
-			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), 0);
-			glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+			glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0);
 
 			unsigned int ibo;
 			glGenBuffers(1, &ibo);
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-			OpenGL::Shader shader("assets/shaders/BasicGradient.glsl");
+			m_shader = std::make_unique<OpenGL::Shader>("assets/shaders/BasicGradient.glsl");
 
 			glEnable(GL_DEBUG_OUTPUT);
 			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
@@ -90,7 +90,15 @@ namespace Mineclone {
 		glClearColor(0.234f, 0.210f, 0.168f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glDrawElements(GL_TRIANGLES, 2*3, GL_FLOAT, nullptr);
+		glm::vec3 rgb = glm::rgbColor(glm::vec3(hue, 0.5f, 0.8f));
+
+		m_shader->setUniformFloat4("u_color", glm::vec4(rgb, 1.0f));
+		glDrawElements(GL_TRIANGLES, 2*3, GL_UNSIGNED_INT, nullptr);
+
+		if(hue == 360)
+			hue = 0;
+		else
+			hue++; 
 
 		double currentFrame = glfwGetTime();
 		m_deltaTime = currentFrame - m_lastFrame;

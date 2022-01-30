@@ -4,6 +4,7 @@
 
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/gtc/type_ptr.hpp>
 
 #include "Shader.h"
 #include "Debug/Log.h"
@@ -106,4 +107,45 @@ namespace Mineclone::OpenGL {
 
 		m_program = program;
 	}
+
+	void Shader::setUniformInt(const std::string& name, int value) {
+		GLint location = glGetUniformLocation(m_program, name.c_str());
+		glUniform1i(location, value);
+	}
+
+	void Shader::setUniformIntArray(const std::string& name, int* values, uint32_t count) {
+		GLint location = glGetUniformLocation(m_program, name.c_str());
+		glUniform1iv(location, count, values);
+	}
+
+	void Shader::setUniformFloat(const std::string& name, float value) {
+		GLint location = glGetUniformLocation(m_program, name.c_str());
+		glUniform1f(location, value);
+	}
+
+	void Shader::setUniformFloat2(const std::string& name, const glm::vec2& value) {
+		GLint location = glGetUniformLocation(m_program, name.c_str());
+		glUniform2f(location, value.x, value.y);
+	}
+
+	void Shader::setUniformFloat3(const std::string& name, const glm::vec3& value) {
+		GLint location = glGetUniformLocation(m_program, name.c_str());
+		glUniform3f(location, value.x, value.y, value.z);
+	}
+
+	void Shader::setUniformFloat4(const std::string& name, const glm::vec4& value) {
+		GLint location = glGetUniformLocation(m_program, name.c_str());
+		glUniform4f(location, value.x, value.y, value.z, value.w);
+	}
+
+	void Shader::setUniformMat3(const std::string& name, const glm::mat3& value) {
+		GLint location = glGetUniformLocation(m_program, name.c_str());
+		glUniformMatrix3fv(location, 1, GL_FALSE, glm::value_ptr(value));
+	}
+
+	void Shader::setUniformMat4(const std::string& name, const glm::mat4& value) {
+		GLint location = glGetUniformLocation(m_program, name.c_str());
+		glUniformMatrix4fv(location, 1, GL_FALSE, glm::value_ptr(value));
+	}
+
 }

@@ -1,14 +1,29 @@
 ﻿#pragma once
 
 #include <string>
+#include <unordered_map>
+
+#include <glm/glm.hpp>
+#include "glad/glad.h"
 
 #include "Debug/Log.h"
 
-namespace Mineclone::OpenGL {
+ namespace Mineclone::OpenGL {
 	class Shader {
 	public:
 		Shader(const std::string& source);
 		~Shader();
+
+		void setUniformInt(const std::string& name, int value);
+		void setUniformIntArray(const std::string& name, int* values, uint32_t count);
+
+		void setUniformFloat(const std::string& name, float value);
+		void setUniformFloat2(const std::string& name, const glm::vec2& value);
+		void setUniformFloat3(const std::string& name, const glm::vec3& value);
+		void setUniformFloat4(const std::string& name, const glm::vec4& value);
+
+		void setUniformMat3(const std::string& name, const glm::mat3& value);
+		void setUniformMat4(const std::string& name, const glm::mat4& value);
 	private:
 		// Utils
 		std::string shaderTypeToString(GLenum type) {

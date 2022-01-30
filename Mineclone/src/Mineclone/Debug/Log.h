@@ -96,7 +96,7 @@ namespace Mineclone {
 		static Color s_currentColor;
 
 		LogLevel m_logLevel = LogLevel::Info;
-		const std::string& m_name;
+		const std::string m_name;
 
 	};
 }
