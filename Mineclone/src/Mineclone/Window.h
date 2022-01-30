@@ -4,7 +4,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "Log.h"
+#include "Debug/Log.h"
 
 namespace Mineclone {
 	class Window {

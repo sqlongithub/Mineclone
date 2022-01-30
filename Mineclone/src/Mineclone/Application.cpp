@@ -6,8 +6,29 @@
 
 #include "Application.h"
 #include "OpenGL/Shader.h"
+#include "Debug/Assert.h"
 
 namespace Mineclone {
+
+	void OpenGLMessageCallback(
+		unsigned source,
+		unsigned type,
+		unsigned id,
+		unsigned severity,
+		int length,
+		const char* message,
+		const void* userParam)
+	{
+		switch(severity) {
+		case GL_DEBUG_SEVERITY_HIGH:         Log::error("OpenGL", message); return;
+		case GL_DEBUG_SEVERITY_MEDIUM:       Log::warn("OpenGL", message); return;
+		case GL_DEBUG_SEVERITY_LOW:          Log::info("OpenGL", message); return;
+		case GL_DEBUG_SEVERITY_NOTIFICATION: Log::debug("OpenGL", message); return;
+		}
+
+		ASSERT_NOT_REACHED("Severity \"" + std::to_string(severity) + "\" unknown!");
+	}
+
 	Application::Application(const std::string& title, const int width, const int height)
 		: m_window(title, width, height), m_logger("Application") {
 		m_logger.info("Application launching");
@@ -43,16 +64,19 @@ namespace Mineclone {
 
 			OpenGL::Shader shader("assets/shaders/BasicGradient.glsl");
 
+			glEnable(GL_DEBUG_OUTPUT);
+			glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+			glDebugMessageCallback(OpenGLMessageCallback, nullptr);
+			glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL, GL_FALSE);
+
 			m_window.setVSync(true);
 			m_window.setMainLoopCallback([this](GLFWwindow* window) {
 				mainLoop(window);
 			});
-
+			
 			m_window.setKeyCallback([this](const int key, const int scancode, const int action, const int mods) {
 				onKey(key, scancode, action, mods);
 			});
-
-			m_startTime = std::chrono::steady_clock::now();
 
 			std::thread fpsLogger([this]() { printFPS(); });
 			m_window.run(); // Keep the application running
@@ -66,7 +90,7 @@ namespace Mineclone {
 		glClearColor(0.234f, 0.210f, 0.168f, 1.0f);
 		glClear(GL_COLOR_BUFFER_BIT);
 
-		glDrawElements(GL_TRIANGLES, 2*3, GL_UNSIGNED_INT, nullptr);
+		glDrawElements(GL_TRIANGLES, 2*3, GL_FLOAT, nullptr);
 
 		double currentFrame = glfwGetTime();
 		m_deltaTime = currentFrame - m_lastFrame;

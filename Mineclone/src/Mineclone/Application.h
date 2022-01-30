@@ -3,7 +3,7 @@
 
 #include <GLFW/glfw3.h>
 
-#include "Log.h"
+#include "Debug/Log.h"
 #include "Window.h"
 
 namespace Mineclone {
@@ -18,7 +18,7 @@ namespace Mineclone {
 
 		double m_deltaTime;
 		double m_lastFrame;
-		std::chrono::time_point<std::chrono::steady_clock> m_startTime;
+
 		bool m_logFPS = false;
 		bool m_running = true;
 

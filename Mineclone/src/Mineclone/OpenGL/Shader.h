@@ -1,6 +1,8 @@
 ﻿#pragma once
 
-#include "../Log.h"
+#include <string>
+
+#include "Debug/Log.h"
 
 namespace Mineclone::OpenGL {
 	class Shader {
@@ -32,7 +34,6 @@ namespace Mineclone::OpenGL {
 
 		std::unordered_map<GLenum, std::string> separateShaders(const std::string& source);
 		std::string readShaderFile(const std::string& source);
-
 
 		std::unordered_map<GLenum, unsigned int> compileShaders(const std::unordered_map<GLenum, std::string>& sources);
 		void createProgram(unsigned int vertexShader, unsigned int fragmentShader);

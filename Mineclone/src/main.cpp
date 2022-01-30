@@ -1,11 +1,9 @@
+#include <string>
 #include <iostream>
 
 #include "Mineclone/Application.h"
 
-/* Programming guidelines, collapse.
- Folder structure is the same as namespace i.e Mineclone/Application.h
- is in the folder Mineclone/
-
+/*
  Do not use "using namespace std::" 
  Always use #pragma once
 */

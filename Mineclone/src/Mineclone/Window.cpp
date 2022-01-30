@@ -1,9 +1,8 @@
-#include <string>
-
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include "Window.h"
+
 
 // Inspiration taken from the Hazel Game engine by TheCherno:
 // https://github.com/TheCherno/Hazel/blob/master/Hazel/src/Platform/Windows/WindowsWindow.cpp
@@ -63,9 +62,11 @@ namespace Mineclone {
 		glfwSetWindowUserPointer(m_windowData.window, &m_windowData);
 
 		setCallbacks();
+
 	}
 
 	void Window::setCallbacks() const {
+
 		glfwSetWindowSizeCallback(m_windowData.window, [](GLFWwindow* window, int width, int height) {
 			WindowData& windowData = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 			windowData.width = width;

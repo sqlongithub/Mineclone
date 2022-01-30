@@ -1,5 +1,4 @@
-﻿#include <string>
-#include <unordered_map>
+﻿#include <unordered_map>
 #include <fstream>
 #include <sstream>
 
@@ -7,6 +6,7 @@
 #include <GLFW/glfw3.h>
 
 #include "Shader.h"
+#include "Debug/Log.h"
 
 namespace Mineclone::OpenGL {
 	Shader::Shader(const std::string& source)

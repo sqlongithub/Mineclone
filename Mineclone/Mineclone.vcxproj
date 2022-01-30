@@ -78,9 +78,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <LinkIncremental>true</LinkIncremental>
+    <IncludePath>$(ProjectDir)src\Mineclone;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <LinkIncremental>false</LinkIncremental>
+    <IncludePath>$(ProjectDir)src\Mineclone;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -117,6 +119,8 @@
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -132,6 +136,8 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -143,13 +149,14 @@
   <ItemGroup>
     <ClCompile Include="src\Mineclone\Application.cpp" />
     <ClCompile Include="src\main.cpp" />
-    <ClCompile Include="src\Mineclone\Log.cpp" />
+    <ClCompile Include="src\Mineclone\Debug\Log.cpp" />
     <ClCompile Include="src\Mineclone\OpenGL\Shader.cpp" />
     <ClCompile Include="src\Mineclone\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Mineclone\Application.h" />
-    <ClInclude Include="src\Mineclone\Log.h" />
+    <ClInclude Include="src\Mineclone\Debug\Assert.h" />
+    <ClInclude Include="src\Mineclone\Debug\Log.h" />
     <ClInclude Include="src\Mineclone\OpenGL\Shader.h" />
     <ClInclude Include="src\Mineclone\Window.h" />
   </ItemGroup>
