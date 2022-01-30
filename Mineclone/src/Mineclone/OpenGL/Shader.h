@@ -1,8 +1,8 @@
 ﻿#pragma once
 
-#include "Log.h"
+#include "../Log.h"
 
-namespace Mineclone {
+namespace Mineclone::OpenGL {
 	class Shader {
 	public:
 		Shader(const std::string& source);

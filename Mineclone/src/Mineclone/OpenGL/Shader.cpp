@@ -8,7 +8,7 @@
 
 #include "Shader.h"
 
-namespace Mineclone {
+namespace Mineclone::OpenGL {
 	Shader::Shader(const std::string& source)
 		: m_logger("Shader") {
 		std::unordered_map<GLenum, std::string> sources = separateShaders(source);

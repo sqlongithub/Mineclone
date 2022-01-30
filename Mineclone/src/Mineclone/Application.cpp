@@ -5,7 +5,7 @@
 #include <glad/glad.h>
 
 #include "Application.h"
-#include "Shader.h"
+#include "OpenGL/Shader.h"
 
 namespace Mineclone {
 	Application::Application(const std::string& title, const int width, const int height)
@@ -41,7 +41,7 @@ namespace Mineclone {
 			glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, ibo);
 			glBufferData(GL_ELEMENT_ARRAY_BUFFER, sizeof(indices), indices, GL_STATIC_DRAW);
 
-			Shader shader("assets/shaders/BasicGradient.glsl");
+			OpenGL::Shader shader("assets/shaders/BasicGradient.glsl");
 
 			m_window.setVSync(true);
 			m_window.setMainLoopCallback([this](GLFWwindow* window) {

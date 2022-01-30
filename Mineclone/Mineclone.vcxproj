@@ -144,13 +144,13 @@
     <ClCompile Include="src\Mineclone\Application.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Mineclone\Log.cpp" />
-    <ClCompile Include="src\Mineclone\Shader.cpp" />
+    <ClCompile Include="src\Mineclone\OpenGL\Shader.cpp" />
     <ClCompile Include="src\Mineclone\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Mineclone\Application.h" />
     <ClInclude Include="src\Mineclone\Log.h" />
-    <ClInclude Include="src\Mineclone\Shader.h" />
+    <ClInclude Include="src\Mineclone\OpenGL\Shader.h" />
     <ClInclude Include="src\Mineclone\Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

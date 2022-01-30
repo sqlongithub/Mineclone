@@ -27,7 +27,7 @@
     <ClCompile Include="src\Mineclone\Log.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="src\Mineclone\Shader.cpp">
+    <ClCompile Include="src\Mineclone\OpenGL\Shader.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -41,7 +41,7 @@
     <ClInclude Include="src\Mineclone\Log.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="src\Mineclone\Shader.h">
+    <ClInclude Include="src\Mineclone\OpenGL\Shader.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
