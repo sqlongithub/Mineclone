@@ -152,14 +152,20 @@
     <ClCompile Include="src\Mineclone\Application.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Mineclone\Debug\Log.cpp" />
+    <ClCompile Include="src\Mineclone\OpenGL\Renderer.cpp" />
     <ClCompile Include="src\Mineclone\OpenGL\Shader.cpp" />
+    <ClCompile Include="src\Mineclone\OpenGL\VertexBuffer.cpp" />
+    <ClCompile Include="src\Mineclone\OpenGL\InexBuffer.cpp" />
     <ClCompile Include="src\Mineclone\Window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="src\Mineclone\Application.h" />
     <ClInclude Include="src\Mineclone\Debug\Assert.h" />
     <ClInclude Include="src\Mineclone\Debug\Log.h" />
+    <ClInclude Include="src\Mineclone\OpenGL\Renderer.h" />
     <ClInclude Include="src\Mineclone\OpenGL\Shader.h" />
+    <ClInclude Include="src\Mineclone\OpenGL\VertexBuffer.h" />
+    <ClInclude Include="src\Mineclone\OpenGL\IndexBuffer.h" />
     <ClInclude Include="src\Mineclone\Window.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

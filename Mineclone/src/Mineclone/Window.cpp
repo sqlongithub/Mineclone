@@ -2,15 +2,34 @@
 #include <GLFW/glfw3.h>
 
 #include "Window.h"
-
+#include "Debug/Assert.h"
 
 // Inspiration taken from the Hazel Game engine by TheCherno:
 // https://github.com/TheCherno/Hazel/blob/master/Hazel/src/Platform/Windows/WindowsWindow.cpp
 namespace Mineclone {
 
+	void OpenGLMessageCallback(
+		unsigned source,
+		unsigned type,
+		unsigned id,
+		unsigned severity,
+		int length,
+		const char* message,
+		const void* userParam)
+	{
+		switch(severity) {
+		case GL_DEBUG_SEVERITY_HIGH:         Log::error("OpenGL", message); return;
+		case GL_DEBUG_SEVERITY_MEDIUM:       Log::warn("OpenGL", message); return;
+		case GL_DEBUG_SEVERITY_LOW:          Log::info("OpenGL", message); return;
+		case GL_DEBUG_SEVERITY_NOTIFICATION: Log::debug("OpenGL", message); return;
+		}
+
+		ASSERT_NOT_REACHED("Severity \"" + std::to_string(severity) + "\" unknown!");
+	}
+
 	Window::Window(const std::string& title, const int width, const int height)
 		: m_mainLoopCallback([](GLFWwindow*) {}),
-		m_windowData(WindowData{ nullptr, title, width, height, Log("Window") }),
+		m_windowData(WindowData{ nullptr, title, width, height, false, Log("Window") }),
 		m_logger(m_windowData.logger) {
 
 		init();
@@ -19,13 +38,13 @@ namespace Mineclone {
 
 	Window::Window(const Window& window)
 		: m_mainLoopCallback([](GLFWwindow*) {}),
-		m_windowData(WindowData{ nullptr, window.m_windowData.title, window.m_windowData.width, window.m_windowData.height, window.m_windowData.logger }),
+		m_windowData(WindowData{ nullptr, window.m_windowData.title, window.m_windowData.width, window.m_windowData.height, m_windowData.running, window.m_windowData.logger }),
 		m_logger(m_windowData.logger) {
 		
 	}
 
 	Window::Window()
-		: m_windowData(WindowData { nullptr, "Window", 800, 600, Log("Window")}),
+		: m_windowData(WindowData { nullptr, "Window", 800, 600, false, Log("Window")}),
 		  m_logger(m_windowData.logger) {
 
 		init();
@@ -106,6 +125,12 @@ namespace Mineclone {
 			const WindowData& windowData = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 			windowData.mouseMoveCallback(x, y);
 		});
+
+		// Enable logging
+		glEnable(GL_DEBUG_OUTPUT);
+		glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
+		glDebugMessageCallback(OpenGLMessageCallback, nullptr);
+		glDebugMessageControl(GL_DONT_CARE, GL_DONT_CARE, GL_DEBUG_SEVERITY_NOTIFICATION, 0, NULL, GL_FALSE);
 	}
 
 	void Window::setMainLoopCallback(const std::function<void(GLFWwindow*)>& mainLoopCallback) {
@@ -140,16 +165,18 @@ namespace Mineclone {
 		m_windowData.mouseMoveCallback = mouseMoveCallback;
 	}
 
-	void Window::run() const
-	{
-		while(!glfwWindowShouldClose(m_windowData.window)) {
+	void Window::run() {
+		/*while(!glfwWindowShouldClose(m_windowData.window)) {
 			m_mainLoopCallback(m_windowData.window);
-		}
+		}*/
+		m_windowData.running = true;
 	}
 
-	void Window::close(const std::string& reason) const {
+	void Window::close(const std::string& reason) {
 		glfwSetWindowShouldClose(m_windowData.window, true);
 		glfwDestroyWindow(m_windowData.window);
+		glfwTerminate();
+		m_windowData.running = false;
 		m_logger.info("Window closed: " + reason);
 	}
 
@@ -158,6 +185,7 @@ namespace Mineclone {
 		WindowData& windowData = *static_cast<WindowData*>(glfwGetWindowUserPointer(window));
 		glfwSetWindowShouldClose(window, true);
 		glfwDestroyWindow(window);
+		windowData.running = false;
 		windowData.logger.info("Window closed: " + reason);
 	}
 
@@ -166,6 +194,11 @@ namespace Mineclone {
 		glfwSwapInterval((int) enabled);
 	}
 
-	Window::~Window() = default;
+	Window::~Window() {
+		m_windowData.running = false;
+		glfwSetWindowShouldClose(m_windowData.window, true);
+		glfwDestroyWindow(m_windowData.window);
+		glfwTerminate();
+	};
 
 }    

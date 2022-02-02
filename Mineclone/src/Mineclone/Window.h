@@ -15,7 +15,7 @@ namespace Mineclone {
 		Window();
 		~Window();
 
-		void close(const std::string& reason) const;
+		void close(const std::string& reason);
 		static void close(GLFWwindow* window, const std::string& reason);
 
 		struct WindowData {
@@ -23,6 +23,7 @@ namespace Mineclone {
 			std::string title = "Window";
 			int width = 800;
 			int height = 600;
+			bool running = false;
 
 			Log logger;
 
@@ -36,9 +37,12 @@ namespace Mineclone {
 			std::function<void(double x, double y)> mouseMoveCallback = [](double x, double y) {};
 		};
 
-		void run() const;
+		void run();
+		[[nodiscard]] constexpr bool running() const { return m_windowData.running; };
 
-		void setVSync(const bool enabled);
+		[[nodiscard]] constexpr GLFWwindow* getWindow() const { return m_windowData.window;  };
+
+		void setVSync(bool enabled);
 		void setResizeCallback(const std::function<void(int width, int height)>& resizeCallback);
 		void setCloseCallback(const std::function<void()>& closeCallback);
 		void setKeyCallback(const std::function<void(int key, int scancode, int action, int mods)>& keyCallback);

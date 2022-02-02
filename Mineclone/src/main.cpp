@@ -18,6 +18,6 @@ int main() {
 	std::cout << "Debug Mode, all loggers are in debug mode unless else specified.\n";
 #endif
 
-	Application application("Mineclone", 1920, 1080);
+	Application application("", 1920, 1080);
 
 }
