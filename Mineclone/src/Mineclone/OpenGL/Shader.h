@@ -7,6 +7,7 @@
 #include "glad/glad.h"
 
 #include "Debug/Log.h"
+#include "Debug/Assert.h"
 
  namespace Mineclone::OpenGL {
 	class Shader {
@@ -32,7 +33,7 @@
 			} else if(type == GL_FRAGMENT_SHADER) {
 				return "Fragment Shader";
 			}
-			m_logger.error("Type \"" + type + std::string("\" is not GL_VERTEX_SHADER or GL_FRAGMENT_SHADER"));
+			ASSERT_NOT_REACHED("Type \"" + type + std::string("\" is not GL_VERTEX_SHADER or GL_FRAGMENT_SHADER"));
 			return "Unkown";
 		}
 
@@ -43,7 +44,7 @@
 			else if(type == "fragment") {
 				return GL_FRAGMENT_SHADER;
 			}
-			m_logger.error("Type \"" + type + std::string("\" is not vertex or fragment"));
+			ASSERT_NOT_REACHED("Type \"" + type + std::string("\" is not vertex or fragment"));
 			return 0;
 		}
 
@@ -53,7 +54,7 @@
 		std::unordered_map<GLenum, unsigned int> compileShaders(const std::unordered_map<GLenum, std::string>& sources);
 		void createProgram(unsigned int vertexShader, unsigned int fragmentShader);
 
-		Log m_logger;
-		uint32_t m_program;
+		Log m_logger; 
+		uint32_t m_rendererId; // m_rendererID? m_rendererid?
 	};
 }
