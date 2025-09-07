@@ -1,0 +1,78 @@
+# ----------------------
+# Build artifacts
+# ----------------------
+/build/
+/cmake-build-*/
+
+# ----------------------
+# CMake files
+# ----------------------
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Makefile
+cmake_install.cmake
+CTestTestfile.cmake
+*.cmake.user
+*.cbp
+*.layout
+*.log
+*.dir/
+
+# ----------------------
+# IDE-specific files
+# ----------------------
+# CLion
+.idea/
+*.iml
+*.iws
+*.ipr
+
+# Visual Studio
+*.vcxproj*
+*.sln
+*.opensdf
+*.user
+*.suo
+*.ipch
+*.pch
+
+# ----------------------
+# OS-specific files
+# ----------------------
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# ----------------------
+# Compiled objects / binaries
+# ----------------------
+*.o
+*.obj
+*.a
+*.lib
+*.so
+*.dll
+*.dylib
+*.exe
+
+# ----------------------
+# Temporary files
+# ----------------------
+*.swp
+*.tmp
+*.bak
+*.log
+
+# ----------------------
+# Submodules
+# ----------------------
+# Keep submodules, but ignore their build artifacts
+/external/glfw/build/
+/external/glad/build/
