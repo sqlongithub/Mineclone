@@ -1,22 +1,23 @@
 #include "glad/glad.h"
-#include "VertexBuffer.h"
+#include "IndexBuffer.h"
 
 namespace Mineclone {
-    VertexBuffer::VertexBuffer(const void* data, uint32_t size) {
+    IndexBuffer::IndexBuffer(const void* data, uint32_t count)
+        : m_count(count) {
         glGenBuffers(1, &m_id);
-        glBindBuffer(GL_ARRAY_BUFFER, m_id);
-        glBufferData(GL_ARRAY_BUFFER, size, data, GL_STATIC_DRAW);
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id);
+        glBufferData(GL_ELEMENT_ARRAY_BUFFER, static_cast<GLsizeiptr>(count * sizeof(uint32_t)), data, GL_STATIC_DRAW);
     }
 
-    VertexBuffer::~VertexBuffer() {
+    IndexBuffer::~IndexBuffer() {
         glDeleteBuffers(1, &m_id);
     }
 
-    void VertexBuffer::bind() {
-        glBindBuffer(GL_ARRAY_BUFFER, m_id);
+    void IndexBuffer::bind() const {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, m_id);
     }
 
-    void VertexBuffer::unbind() {
-        glBindBuffer(GL_ARRAY_BUFFER, 0);
+    void IndexBuffer::unbind() const {
+        glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, 0);
     }
 } // Mineclone

@@ -1,28 +1,28 @@
 #include <stdexcept>
 #include <iostream>
-#include "Application.h"
-#include "GLFW/glfw3.h"
+
 #include "glad/glad.h"
+#include "GLFW/glfw3.h"
+
+#include "Application.h"
+
 
 namespace Mineclone {
 
     Application::Application(const std::string &title)
-        : m_window("Mineclone", 1280, 960) {
+        : m_window("Mineclone", 1280, 960),
+          m_renderer(),
+          m_game() {
 
-        if(!glfwInit()) {
-            throw std::runtime_error("Failed to initialize GLFW");
-        }
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+    }
 
-
-        if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
+    void Application::run() {
+        while(!m_window.shouldClose())
         {
-            throw std::runtime_error("Failed to initialize GLAD");
+            glfwPollEvents();
+            m_renderer.beginFrame();
+            m_game.draw(m_renderer);
+            m_renderer.endFrame(m_window);
         }
-
-
     }
 }

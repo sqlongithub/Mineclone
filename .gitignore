@@ -75,4 +75,5 @@ Desktop.ini
 # ----------------------
 # Keep submodules, but ignore their build artifacts
 /external/glfw/build/
-/external/glad/build/
+external/glad/*.o
+external/glad/*.obj

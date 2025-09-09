@@ -2,14 +2,17 @@
 #include <cstdint>
 
 namespace Mineclone {
-    class VertexBuffer {
+    class IndexBuffer {
     public:
-        VertexBuffer(const void* data, uint32_t size);
-        ~VertexBuffer();
-        void bind();
-        void unbind();
+        IndexBuffer(const void* data, uint32_t count);
+        ~IndexBuffer();
+        void bind() const;
+        void unbind() const;
+
+        [[nodiscard]] inline uint32_t getCount() const { return m_count; };
     private:
         uint32_t m_id;
+        uint32_t m_count;
 
     };
 
