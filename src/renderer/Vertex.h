@@ -1,0 +1,5 @@
+
+#ifndef MINECLONE_VERTEX_H
+#define MINECLONE_VERTEX_H
+
+#endif //MINECLONE_VERTEX_H

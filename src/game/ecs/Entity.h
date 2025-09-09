@@ -1,0 +1,5 @@
+
+#ifndef MINECLONE_ENTITY_H
+#define MINECLONE_ENTITY_H
+
+#endif //MINECLONE_ENTITY_H
