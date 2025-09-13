@@ -6,6 +6,9 @@ namespace Mineclone {
     public:
         IndexBuffer(const void* data, uint32_t count);
         ~IndexBuffer();
+        IndexBuffer(const IndexBuffer&) = delete;
+        IndexBuffer& operator=(const IndexBuffer&) = delete;
+
         void bind() const;
         void unbind() const;
 

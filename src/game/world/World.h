@@ -1,9 +1,8 @@
 #pragma once
 
 namespace Mineclone {
-    class Camera {
-    public:
+    class World {
 
-    private:
     };
+
 }

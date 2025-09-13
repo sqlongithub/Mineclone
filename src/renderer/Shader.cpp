@@ -34,6 +34,7 @@ namespace Mineclone {
         GLuint vertex = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertex, 1, &vShaderCode, nullptr);
         glCompileShader(vertex);
+        printShaderCompileLog(vertex, "Vertex");
 
         // Check for compile errors
         GLint success;
@@ -48,6 +49,7 @@ namespace Mineclone {
         GLuint fragment = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragment, 1, &fShaderCode, nullptr);
         glCompileShader(fragment);
+        printShaderCompileLog(fragment, "Fragment");
 
         glGetShaderiv(fragment, GL_COMPILE_STATUS, &success);
         if (!success) {
@@ -61,6 +63,19 @@ namespace Mineclone {
         glAttachShader(m_id, vertex);
         glAttachShader(m_id, fragment);
         glLinkProgram(m_id);
+        printProgramLinkLog(m_id);
+
+        GLint nUniforms;
+        glGetProgramiv(m_id, GL_ACTIVE_UNIFORMS, &nUniforms);
+        std::cout << "Active uniforms: " << nUniforms << std::endl;
+        for(int i = 0; i < nUniforms; ++i) {
+            char name[256];
+            GLsizei length;
+            GLint size;
+            GLenum type;
+            glGetActiveUniform(m_id, i, 256, &length, &size, &type, name);
+            std::cout << "Uniform[" << i << "] = " << name << std::endl;
+        }
 
         glGetProgramiv(m_id, GL_LINK_STATUS, &success);
         if (!success) {
@@ -72,11 +87,38 @@ namespace Mineclone {
         // 5. Delete individual shaders after linking
         glDeleteShader(vertex);
         glDeleteShader(fragment);
+
+        std::cout << "Shader program ID: " << m_id << std::endl;
     }
 
     Shader::~Shader() {
+        std::cout << "Shader deleted :((\n";
         glDeleteProgram(m_id);
         m_id = 0;
+    }
+
+    void Shader::printShaderCompileLog(GLuint shader, const std::string& type) {
+        GLint success;
+        glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
+        if (!success) {
+            GLint length = 0;
+            glGetShaderiv(shader, GL_INFO_LOG_LENGTH, &length);
+            std::string infoLog(length, ' ');
+            glGetShaderInfoLog(shader, length, nullptr, infoLog.data());
+            std::cerr << "ERROR: " << type << " shader compilation failed\n" << infoLog << std::endl;
+        }
+    }
+
+    void Shader::printProgramLinkLog(GLuint program) {
+        GLint success;
+        glGetProgramiv(program, GL_LINK_STATUS, &success);
+        if (!success) {
+            GLint length = 0;
+            glGetProgramiv(program, GL_INFO_LOG_LENGTH, &length);
+            std::string infoLog(length, ' ');
+            glGetProgramInfoLog(program, length, nullptr, infoLog.data());
+            std::cerr << "ERROR: Shader program linking failed\n" << infoLog << std::endl;
+        }
     }
 
     void Shader::bind() const {
@@ -91,8 +133,8 @@ namespace Mineclone {
         glUniform4f(getUniformLocation(name), x, y, z, w);
     }
 
-    void Shader::setUniformMat4(const std::string &name, const glm::mat4& matrix) const {
-        glUniformMatrix4fv(getUniformLocation(name), 1, GL_FALSE, glm::value_ptr(matrix));
+    void Shader::setUniformMat4(const std::string &name, const glm::mat4& matrix, bool transpose) const {
+        glUniformMatrix4fv(getUniformLocation(name), 1, transpose, glm::value_ptr(matrix));
     }
 
     void Shader::compile() {

@@ -4,6 +4,10 @@
 #include "GLFW/glfw3.h"
 
 #include "Window.h"
+#include "Dispatcher.h"
+#include "imgui.h"
+#include "imgui_impl_opengl3.h"
+#include "imgui_impl_glfw.h"
 
 namespace Mineclone {
 
@@ -11,14 +15,22 @@ namespace Mineclone {
         glViewport(0, 0, width, height);
     }
 
-    Window::Window(const std::string& title, int width, int height) {
+    void APIENTRY Window::messageCallback(GLenum source, GLenum type, GLuint id,
+                                  GLenum severity, GLsizei length,
+                                  const GLchar* message, const void* userParam) {
+        std::cerr << "GL CALLBACK: " << message << std::endl;
+    }
+
+    Window::Window(const std::string& title, int width, int height, Dispatcher& dispatcher) {
         if(!glfwInit()) {
             throw std::runtime_error("Failed to initialize GLFW");
         }
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        glfwWindowHint(GLFW_OPENGL_DEBUG_CONTEXT, GL_TRUE);
         //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
+
 
         m_handle = glfwCreateWindow(width, height, title.c_str(), nullptr, nullptr);
         if (m_handle == nullptr)
@@ -30,9 +42,18 @@ namespace Mineclone {
         {
             throw std::runtime_error("Failed to initialize GLAD");
         }
+        glfwSwapInterval(1);
         glViewport(0, 0, width, height);
 
         glfwSetFramebufferSizeCallback(m_handle, framebufferSizeCallback);
+
+        glEnable(GL_DEBUG_OUTPUT);
+        glDebugMessageCallback(Window::messageCallback, 0);
+        IMGUI_CHECKVERSION();
+        ImGui::CreateContext();
+        ImGui_ImplGlfw_InitForOpenGL(m_handle, true);
+        ImGui_ImplOpenGL3_Init("#version 330");
+        ImGui::StyleColorsDark();
     }
 
     Window::~Window() {
@@ -45,6 +66,28 @@ namespace Mineclone {
 
     void Window::swapBuffers() {
         glfwSwapBuffers(m_handle);
+    }
+
+    void Window::captureCursor() {
+        glfwSetInputMode(m_handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    }
+
+    void Window::releaseCursor() {
+        glfwSetInputMode(m_handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+    }
+
+    std::pair<float, float> Window::getCurrentMousePosition() const {
+        double mouseX, mouseY;
+        glfwGetCursorPos(m_handle, &mouseX, &mouseY);
+        return std::pair(mouseX, mouseY);
+    }
+
+    bool Window::isKeyPressed(int key) const {
+        return glfwGetKey(m_handle, key) == GLFW_PRESS;
+    }
+
+    bool Window::isCursorCaptured() {
+        return glfwGetInputMode(m_handle, GLFW_CURSOR) == GLFW_CURSOR_DISABLED;
     }
 
 

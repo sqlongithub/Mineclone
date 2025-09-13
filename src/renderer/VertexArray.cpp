@@ -29,13 +29,8 @@ namespace Mineclone {
         for(unsigned int i = 0; i < elements.size(); i++) {
             const auto& element = elements[i];
             glEnableVertexAttribArray(i);
-            std::cout << "stride: " << layout.getStride();
             glVertexAttribPointer(i, element.count, element.type, element.normalized, layout.getStride(),
                                   reinterpret_cast<const void *>(offset));
-            std::cout << "Attrib " << i << ": count=" << element.count
-                      << ", type=" << element.type
-                      << ", normalized=" << element.normalized
-                      << ", offset=" << offset << std::endl;
             offset += element.count * VertexBufferElement::getSizeOfGLType(element.type);
         }
     }

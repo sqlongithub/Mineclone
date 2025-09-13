@@ -50,6 +50,9 @@ Thumbs.db
 ehthumbs.db
 Desktop.ini
 
+# user-specific configuration
+imgui.ini
+
 # ----------------------
 # Compiled objects / binaries
 # ----------------------

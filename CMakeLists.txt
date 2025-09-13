@@ -28,6 +28,13 @@ list(REMOVE_DUPLICATES INCLUDE_DIRS)
 add_executable(${PROJECT_NAME} ${CPP_SOURCES} ${HEADER_FILES})
 target_include_directories(${PROJECT_NAME} PRIVATE ${INCLUDE_DIRS})
 
+set(EXTERNAL_DIR "${CMAKE_SOURCE_DIR}/external/")
+if(NOT EXISTS "${EXTERNAL_DIR}/stb_image.h")
+    message(FATAL_ERROR "stb_image not found in ${EXTERNAL_DIR}. Please add stb_image.h here.")
+endif()
+
+target_include_directories(${PROJECT_NAME} PRIVATE ${EXTERNAL_DIR})
+
 # -------------------------
 # Compiler warnings
 # -------------------------
@@ -82,3 +89,23 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(glm)
 
 target_link_libraries(${PROJECT_NAME} PRIVATE glm::glm)
+
+# imgui
+file(GLOB IMGUI_SOURCES
+        external/imgui/*.cpp
+        external/imgui/backends/imgui_impl_glfw.cpp
+        external/imgui/backends/imgui_impl_opengl3.cpp
+)
+add_library(imgui STATIC ${IMGUI_SOURCES})
+target_include_directories(imgui PUBLIC
+        external/imgui
+        external/imgui/backends
+)
+if(WIN32)
+    target_link_libraries(imgui PRIVATE opengl32)
+else()
+    find_package(OpenGL REQUIRED)
+    target_link_libraries(imgui PRIVATE OpenGL::GL)
+endif()
+target_link_libraries(imgui PRIVATE glfw)
+target_link_libraries(${PROJECT_NAME} PRIVATE imgui)
