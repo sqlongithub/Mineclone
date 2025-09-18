@@ -4,13 +4,13 @@
 #include "InputAction.h"
 #include "Window.h"
 #include "Registry.h"
-#include "ISystem.h"
+#include "System.h"
 #include "InputContextManager.h"
 
 namespace Mineclone {
-    class InputActionSystem : public ISystem {
+    class InputActionSystem : public System {
     public:
-        InputActionSystem(const Window &window);
+        InputActionSystem(const Window &window, InputContextManager& contextManager);
 
         // TODO: load from config
         void setDefaultBindings();

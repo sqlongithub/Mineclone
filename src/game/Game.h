@@ -1,14 +1,13 @@
 #pragma once
 
 #include "../renderer/Renderer.h"
-#include "Vertex.h"
-#include "Mesh.h"
-#include "Shader.h"
-#include "ecs/components/Camera.h"
-#include "ecs/Entity.h"
-#include "ecs/Registry.h"
-#include "ecs/SystemManager.h"
-#include "ecs/systems/InputActionSystem.h"
+#include "gpu/Vertex.h"
+#include "mesh/Mesh.h"
+#include "materials/Shader.h"
+#include "World.h"
+#include "SystemManager.h"
+#include "AssetManager.h"
+#include "BlockRegistry.h"
 
 namespace Mineclone {
     class Game {
@@ -18,15 +17,23 @@ namespace Mineclone {
         void draw(Renderer& renderer, float dt) const;
         void initSystems();
     private:
-        std::vector<Vertex> m_vertices;
-        std::vector<unsigned int> m_indices;
+        void initAssets();
 
-        Mesh m_mesh;
+        // engine things
+        AssetManager m_assetManager;
         EntityManager m_entityManager;
+
         SystemManager& m_systemManager;
         Registry& m_registry;
-        Entity m_camera;
-        Shader m_shader;
         Dispatcher m_dispatcher;
+
+        // game things
+        Entity m_camera;
+        World m_world;
+        BlockRegistry m_blockRegistry;
+
+
+
+
     };
 }

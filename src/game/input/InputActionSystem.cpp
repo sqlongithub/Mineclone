@@ -1,11 +1,11 @@
 #include "InputActionSystem.h"
-#include "ecs/components/InputData.h"
 #include "InputAction.h"
 #include "GLFW/glfw3.h"
+#include "InputState.h"
 
 namespace Mineclone {
 
-    InputActionSystem::InputActionSystem(const Window& window, contextManager)
+    InputActionSystem::InputActionSystem(const Window& window, InputContextManager& contextManager)
             : m_window(window),
               m_contextManager(contextManager) {
         setDefaultBindings();
@@ -21,6 +21,7 @@ namespace Mineclone {
         bindAction(InputAction::ATTACK, GLFW_MOUSE_BUTTON_LEFT);
         bindAction(InputAction::MENU, GLFW_KEY_ESCAPE);
         bindAction(InputAction::DEBUG_TOGGLE_CURSOR, GLFW_KEY_F3);
+        bindAction(InputAction::DEBUG_TOGGLE_WIREFRAME, GLFW_KEY_F4);
 
 
         bindAxis(InputAction::LOOK_HORIZONTAL, MouseAxis::X);

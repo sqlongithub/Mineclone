@@ -13,6 +13,7 @@ namespace Mineclone {
         ATTACK,
         MENU,
         DEBUG_TOGGLE_CURSOR,
+        DEBUG_TOGGLE_WIREFRAME,
     };
 
     enum class MouseAxis {

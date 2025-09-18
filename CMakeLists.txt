@@ -65,6 +65,7 @@ target_link_libraries(${PROJECT_NAME} PRIVATE glad)
 # -------------------------
 # GLFW
 # -------------------------
+
 if(EXISTS "${CMAKE_SOURCE_DIR}/external/glfw/CMakeLists.txt")
     add_subdirectory(external/glfw)
 else()
@@ -109,3 +110,17 @@ else()
 endif()
 target_link_libraries(imgui PRIVATE glfw)
 target_link_libraries(${PROJECT_NAME} PRIVATE imgui)
+
+FetchContent_Declare(
+        glaze
+        GIT_REPOSITORY https://github.com/stephenberry/glaze.git
+        GIT_TAG main
+        GIT_SHALLOW TRUE
+)
+
+FetchContent_MakeAvailable(glaze)
+target_link_libraries(${PROJECT_NAME} PRIVATE glaze::glaze)
+
+set(FASTNOISE2_NOISETOOL OFF CACHE BOOL "Build Noise Tool" FORCE)
+add_subdirectory(external/FastNoise2)
+target_link_libraries(${PROJECT_NAME} PRIVATE FastNoise)

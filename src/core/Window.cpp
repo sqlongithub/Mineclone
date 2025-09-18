@@ -68,12 +68,18 @@ namespace Mineclone {
         glfwSwapBuffers(m_handle);
     }
 
+    bool Window::isCursorCaptured() const {
+        return m_isCursorCaptured;
+    }
+
     void Window::captureCursor() {
         glfwSetInputMode(m_handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        m_isCursorCaptured = true;
     }
 
     void Window::releaseCursor() {
         glfwSetInputMode(m_handle, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        m_isCursorCaptured = false;
     }
 
     std::pair<float, float> Window::getCurrentMousePosition() const {
@@ -86,9 +92,7 @@ namespace Mineclone {
         return glfwGetKey(m_handle, key) == GLFW_PRESS;
     }
 
-    bool Window::isCursorCaptured() {
-        return glfwGetInputMode(m_handle, GLFW_CURSOR) == GLFW_CURSOR_DISABLED;
-    }
+
 
 
 }

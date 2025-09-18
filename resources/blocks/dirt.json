@@ -1,0 +1,8 @@
+{
+  "name": "dirt",
+  "textures": {
+    "top": "dirt",
+    "bottom": "dirt",
+    "side": "dirt"
+  }
+}

@@ -4,11 +4,15 @@
 #include "glm/vec3.hpp"
 #include "glm/vec4.hpp"
 #include "glm/common.hpp"
-#include "RenderCamera.h"
+#include "render_queue/RenderCamera.h"
 #include "Registry.h"
 #include "Camera.h"
-#include "Mesh.h"
-#include "Shader.h"
+#include "mesh/Mesh.h"
+#include "materials/Shader.h"
+#include "render_queue/RenderQueue.h"
+#include "gpu/FrameData.h"
+#include "gpu/UniformBuffer.h"
+#include "AssetManager.h"
 
 inline void checkGLError(const std::string& location) {
     GLenum err;
@@ -19,13 +23,15 @@ inline void checkGLError(const std::string& location) {
 
 namespace Mineclone {
 
-
     class Renderer {
     public:
         Renderer();
         ~Renderer() = default;
-        void beginFrame();
+        void beginFrame(const RenderCamera& camera);
         void endFrame(Window& window);
+
+        void submit(const RenderCommand& cmd);
+        void flushQueue(const AssetManager& assets);
 
         void setClearColor(const glm::vec4& color) {
             m_clearColor.r = glm::clamp(color.r, 0.0f, 1.0f);
@@ -36,10 +42,17 @@ namespace Mineclone {
 
         [[nodiscard]] glm::vec4 getClearColor() const { return m_clearColor; }
 
-        void drawMesh(Mineclone::Mesh &mesh, const Mineclone::Shader &shader, const glm::mat4 &mvp);
+        static RenderCommand& getLastCommandLastFrame();
 
     private:
+        static void executeCommand(const RenderCommand& cmd, const AssetManager& assets);
+
+        RenderQueue m_renderQueue;
+        FrameData m_frameData{};
+        UniformBuffer m_frameUBO;
         glm::vec4 m_clearColor {0.23, 0.3, 0.3, 0};
+
+        static RenderCommand m_lastCommandLastFrame;
 
     };
 }

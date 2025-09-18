@@ -1,14 +1,20 @@
-#version 330 core
+#version 430 core
 
-layout (location = 0) in vec3 aPos;   // from Vertex.position
-layout (location = 1) in vec3 aColor; // from Vertex.color
+layout(std140, binding = 0) uniform FrameData {
+    mat4 viewProjection;
+    vec3 cameraPosition;
+    float time;
+};
 
-out vec3 vColor; // pass to fragment shader
+layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aColor;
 
-uniform mat4 u_MVP;
+out vec3 vColor;
+
+uniform mat4 u_Model;
 
 void main()
 {
-    gl_Position = u_MVP * vec4(aPos, 1.0);
+    gl_Position = viewProjection * u_Model * vec4(aPos, 1.0);
     vColor = aColor;
 }
