@@ -1,11 +1,11 @@
 #include "ChunkMesher.h"
-
-#include <iostream>
 #include "BlockVertex.h"
+#include "../CubeFace.h"
 
 namespace Mineclone {
 
     static constexpr float BLOCK_SCALE = 1.0f / 16.0f;
+    static constexpr uint32_t FACE_INDICES[6] = {0, 1, 2, 0, 2, 3};
 
     LayeredMeshData<BlockVertex> ChunkMesher::buildMesh(const TextureArray& textureArray,
                                                         const BlockRegistry& blockRegistry,
@@ -13,33 +13,23 @@ namespace Mineclone {
                                                         const Chunk& chunk) {
         int minSection = chunk.getMinNonEmptySection();
         int maxSection = chunk.getMaxNonEmptySection();
-
-        if (minSection == -1) {
-            return {}; // Empty chunk
-        }
-
+        if (minSection == -1) return {};
         LayeredMeshData<BlockVertex> layeredMesh;
 
         for (int section = minSection; section <= maxSection; section++) {
-            if (chunk.isSectionEmpty(section)) {
-                continue; // Skip empty sections entirely
-            }
-
+            if (chunk.isSectionEmpty(section)) continue;
             int minY = section * SECTION_HEIGHT;
             int maxY = std::min(minY + SECTION_HEIGHT - 1, CHUNK_HEIGHT - 1);
-
             for (int y = minY; y <= maxY; y++) {
                 for (int z = 0; z < CHUNK_DEPTH; z++) {
                     for (int x = 0; x < CHUNK_WIDTH; x++) {
                         const Block* block = chunk.getBlock(x, y, z);
                         if (!block || block->id == AIR_BLOCK_ID) continue;
-
                         generateBlockFacesInto(x, y, z, blockRegistry, biomeRegistry, chunk, block->id, layeredMesh);
                     }
                 }
             }
         }
-
         return layeredMesh;
     }
 
@@ -50,47 +40,66 @@ namespace Mineclone {
                                              BlockId blockId,
                                              LayeredMeshData<BlockVertex>& layeredMesh) {
         const auto* definition = blockRegistry.getDefinition(blockId);
-
-
-
-        if (!definition || definition->model.elements.empty()) {
-            return;
-        }
-
+        if (!definition || definition->model.elements.empty()) return;
         BiomeId biomeId = chunk.getBiome(x, z);
 
-      //  std::cout << "Processing block at (" << x << "," << y << "," << z << ") with "
-//          << definition->model.elements.size() << " elements" << std::endl;
-
-        for (size_t i = 0; i < definition->model.elements.size(); ++i) {
-            const auto& element = definition->model.elements[i];
-           // std::cout << "  Element " << i << " has " << element.faces.size() << " faces" << std::endl;
+        for (const auto& element : definition->model.elements) {
             for (uint8_t faceIdx = 0; faceIdx < 6; faceIdx++) {
-                const auto face = static_cast<CubeFace>(faceIdx);
+                CubeFace face = static_cast<CubeFace>(faceIdx);
+                if (!shouldRenderFace(x, y, z, face, chunk)) continue;
+                auto faceIt = element.faces.find(getCubeFaceName(face));
+                if (faceIt == element.faces.end()) continue;
+                const FaceDefinition& faceDef = faceIt->second;
+                Layer layer = faceDef.layer;
+                auto& vertices = layeredMesh.getVertices(layer);
+                auto& indices  = layeredMesh.getIndices(layer);
 
-                if (!shouldRenderFace(x, y, z, face, chunk))
-                    continue;
+                const FaceData& fd = getFaceData(face);
+                int textureIndex = blockRegistry.getTextureIndex(blockId, element, face);
+                if (textureIndex < 0) textureIndex = 0;
+                uint32_t baseIndex = static_cast<uint32_t>(vertices.size());
 
-                std::string faceName = getCubeFaceName(face);
+                const float u0 = faceDef.uv[0] * BLOCK_SCALE;
+                const float v0 = faceDef.uv[1] * BLOCK_SCALE;
+                const float u1 = faceDef.uv[2] * BLOCK_SCALE;
+                const float v1 = faceDef.uv[3] * BLOCK_SCALE;
 
-
-
-                auto faceIt = element.faces.find(faceName);
-                if (faceIt == element.faces.end())
-                    continue;
-
-                auto faceDefinition = faceIt->second;
-
-                Layer layer = faceDefinition.layer;
-
-                generateElementFaceVerticesInto(x, y, z, blockRegistry, face, blockId,
-                                                element, faceIt->second, biomeId, layeredMesh, layer);
+                for (int i = 0; i < 4; i++) {
+                    glm::vec3 local = glm::mix(element.from, element.to, fd.corners[i]);
+                    glm::vec2 uv;
+                    switch(face) {
+                        case CubeFace::NORTH: case CubeFace::SOUTH:
+                            uv.x = (local.x == element.from.x) ? u0 : u1;
+                            uv.y = (local.y == element.from.y) ? v0 : v1;
+                            break;
+                        case CubeFace::EAST: case CubeFace::WEST:
+                            uv.x = (local.z == element.from.z) ? u0 : u1;
+                            uv.y = (local.y == element.from.y) ? v0 : v1;
+                            break;
+                        case CubeFace::UP: case CubeFace::DOWN:
+                            uv.x = (local.x == element.from.x) ? u0 : u1;
+                            uv.y = (local.z == element.from.z) ? v0 : v1;
+                            break;
+                        default: break;
+                    }
+                    BlockVertex v;
+                    v.position = glm::vec3{
+                        x + local.x * BLOCK_SCALE,
+                        y + local.y * BLOCK_SCALE,
+                        z + local.z * BLOCK_SCALE
+                    };
+                    v.uv = {uv.x, 1.0f - uv.y};
+                    v.textureIndex = static_cast<uint8_t>(textureIndex);
+                    v.faceIndex = static_cast<uint8_t>(face);
+                    v.tintIndex = (faceDef.tintIndex >= 0) ? static_cast<uint8_t>(faceDef.tintIndex) : NO_TINT_INDEX;
+                    vertices.push_back(v);
+                }
+                for (uint32_t idx : FACE_INDICES) indices.push_back(baseIndex + idx);
             }
         }
     }
 
     bool ChunkMesher::shouldRenderFace(uint8_t x, uint8_t y, uint8_t z, CubeFace face, const Chunk& chunk) {
-        // Calculate neighbor position based on face direction
         int nx = x, ny = y, nz = z;
         switch (face) {
             case CubeFace::EAST:  nx = x + 1; break;
@@ -101,134 +110,8 @@ namespace Mineclone {
             case CubeFace::SOUTH: nz = z - 1; break;
             default: break;
         }
-
-        // TODO: Check adjacent chunks for proper culling
-        if (nx < 0 || nx >= CHUNK_WIDTH || ny < 0 || ny >= CHUNK_HEIGHT || nz < 0 || nz >= CHUNK_DEPTH) {
-            return true;
-        }
-
+        if (nx < 0 || nx >= CHUNK_WIDTH || ny < 0 || ny >= CHUNK_HEIGHT || nz < 0 || nz >= CHUNK_DEPTH) return true;
         const auto neighbor = chunk.getBlock(nx, ny, nz);
-        if (!neighbor) {
-            return true;
-        }
-
-        // TODO: Check block opacity/transparency instead of assuming all non-air blocks are opaque
-        return neighbor->id == AIR_BLOCK_ID;
+        return !neighbor || neighbor->id == AIR_BLOCK_ID;
     }
-
-    void ChunkMesher::generateElementFaceVerticesInto(uint8_t x, uint8_t y, uint8_t z,
-                                                  const BlockRegistry& blockRegistry,
-                                                  CubeFace face,
-                                                  BlockId blockId,
-                                                  const BlockElement& element,
-                                                  const FaceDefinition& faceDefinition,
-                                                  BiomeId biomeId,
-                                                  LayeredMeshData<BlockVertex>& layeredMesh,
-                                                  Layer layer) {
-
-        auto& vertices = layeredMesh.getVertices(layer);
-        auto& indices  = layeredMesh.getIndices(layer);
-
-        std::array<glm::vec3, 4> corners = calculateElementFaceCorners(element, face);
-
-        const float u0 = faceDefinition.uv[0] * BLOCK_SCALE;
-        const float v0 = faceDefinition.uv[1] * BLOCK_SCALE;
-        const float u1 = faceDefinition.uv[2] * BLOCK_SCALE;
-        const float v1 = faceDefinition.uv[3] * BLOCK_SCALE;
-
-        auto pickUVForCorner = [&](const glm::vec3& corner) -> glm::vec2 {
-            float u = u0, v = v0;
-            switch(face) {
-                case CubeFace::NORTH: case CubeFace::SOUTH:
-                    u = (corner.x == element.from.x) ? u0 : u1;
-                    v = (corner.y == element.from.y) ? v0 : v1;
-                    break;
-                case CubeFace::EAST: case CubeFace::WEST:
-                    u = (corner.z == element.from.z) ? u0 : u1;
-                    v = (corner.y == element.from.y) ? v0 : v1;
-                    break;
-                case CubeFace::UP: case CubeFace::DOWN:
-                    u = (corner.x == element.from.x) ? u0 : u1;
-                    v = (corner.z == element.from.z) ? v0 : v1;
-                    break;
-            }
-            return {u, 1.0f - v};
-        };
-
-        int textureIndex = blockRegistry.getTextureIndex(blockId, element, face);
-        if (textureIndex < 0) textureIndex = 0;
-
-        uint32_t baseIndex = static_cast<uint32_t>(vertices.size());
-
-        for (int i = 0; i < 4; ++i) {
-            BlockVertex vertex;
-            vertex.position = glm::vec3{
-                x + corners[i].x * BLOCK_SCALE,
-                y + corners[i].y * BLOCK_SCALE,
-                z + corners[i].z * BLOCK_SCALE
-            };
-            vertex.uv = pickUVForCorner(corners[i]);
-            vertex.textureIndex = static_cast<uint8_t>(textureIndex);
-            vertex.faceIndex = static_cast<uint8_t>(face);
-            vertex.tintIndex = (faceDefinition.tintIndex >= 0) ? static_cast<uint8_t>(faceDefinition.tintIndex)
-                                                               : NO_TINT_INDEX;
-            vertices.push_back(vertex);
-        }
-
-        indices.insert(indices.end(), {
-            baseIndex + 0, baseIndex + 1, baseIndex + 2,
-            baseIndex + 0, baseIndex + 2, baseIndex + 3
-        });
-
-#ifdef DEBUG
-      //  std::cout << "Generating face " << getCubeFaceName(face) << std::endl;
-        for (size_t i = 0; i < std::min(static_cast<int>(vertices.size()), 1); i++) {
-            const auto& vertex = vertices[i];
-     //       std::cout << "  Vertex: pos(" << vertex.position.x << ","
-                  //    << vertex.position.y << "," << vertex.position.z << ")" << std::endl;
-        }
-        for (size_t i = 0; i < std::min(static_cast<int>(indices.size()), 3); i += 3) {
-      //      std::cout << "  Triangle: " << indices[i] << ","
-                //      << indices[i+1] << "," << indices[i+2] << std::endl;
-        }
-
-#endif
-    }
-
-
-    std::array<glm::vec3, 4> ChunkMesher::calculateElementFaceCorners(const BlockElement& element, CubeFace face) {
-        std::array<glm::vec3, 4> corners;
-        const glm::vec3& from = element.from;
-        const glm::vec3& to = element.to;
-
-        switch (face) {
-            case CubeFace::NORTH:
-                corners = { glm::vec3{from.x, from.y, to.z}, glm::vec3{to.x, from.y, to.z},
-                            glm::vec3{to.x, to.y, to.z}, glm::vec3{from.x, to.y, to.z} };
-                break;
-            case CubeFace::SOUTH:
-                corners = { glm::vec3{to.x, from.y, from.z}, glm::vec3{from.x, from.y, from.z},
-                            glm::vec3{from.x, to.y, from.z}, glm::vec3{to.x, to.y, from.z} };
-                break;
-            case CubeFace::EAST:
-                corners = { glm::vec3{to.x, from.y, to.z}, glm::vec3{to.x, from.y, from.z},
-                            glm::vec3{to.x, to.y, from.z}, glm::vec3{to.x, to.y, to.z} };
-                break;
-            case CubeFace::WEST:
-                corners = { glm::vec3{from.x, from.y, from.z}, glm::vec3{from.x, from.y, to.z},
-                            glm::vec3{from.x, to.y, to.z}, glm::vec3{from.x, to.y, from.z} };
-                break;
-            case CubeFace::UP:
-                corners = { glm::vec3{from.x, to.y, from.z}, glm::vec3{to.x, to.y, from.z},
-                            glm::vec3{to.x, to.y, to.z}, glm::vec3{from.x, to.y, to.z} };
-                break;
-            case CubeFace::DOWN:
-                corners = { glm::vec3{from.x, from.y, to.z}, glm::vec3{to.x, from.y, to.z},
-                            glm::vec3{to.x, from.y, from.z}, glm::vec3{from.x, from.y, from.z} };
-                break;
-        }
-
-        return corners;
-    }
-
 }

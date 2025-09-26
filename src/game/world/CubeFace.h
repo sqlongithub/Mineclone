@@ -89,74 +89,73 @@ namespace Mineclone {
     };
 
 
-
     static inline constexpr FaceData FACE_DATA[6] = {
-            // [0] NORTH (+Z)
-            FaceData{
-                    .normal = glm::vec3{0,0,1},
-                    .tangent = glm::vec3{-1,0,0},
-                    .corners = {
-                            glm::vec3{1,0,1},
-                            glm::vec3{0,0,1},
-                            glm::vec3{0,1,1},
-                            glm::vec3{1,1,1}
-                    }
-            },
-            // [1] SOUTH (-Z)
-            FaceData{
-                    .normal = glm::vec3{0,0,-1},
-                    .tangent = glm::vec3{1,0,0},
-                    .corners = {
-                            glm::vec3{0,0,0},
-                            glm::vec3{1,0,0},
-                            glm::vec3{1,1,0},
-                            glm::vec3{0,1,0}
-                    }
-            },
-            // [2] EAST (+X)
-            FaceData{
-                    .normal = glm::vec3{1,0,0},
-                    .tangent = glm::vec3{0,0,-1},
-                    .corners = {
-                            glm::vec3{1,0,0},
-                            glm::vec3{1,0,1},
-                            glm::vec3{1,1,1},
-                            glm::vec3{1,1,0}
-                    }
-            },
-            // [3] WEST (-X)
-            FaceData{
-                    .normal = glm::vec3{-1,0,0},
-                    .tangent = glm::vec3{0,0,1},
-                    .corners = {
-                            glm::vec3{0,0,1},
-                            glm::vec3{0,0,0},
-                            glm::vec3{0,1,0},
-                            glm::vec3{0,1,1}
-                    }
-            },
-            // [4] UP (+Y)
-            FaceData{
-                    .normal = glm::vec3{0,1,0},
-                    .tangent = glm::vec3{1,0,0},
-                    .corners = {
-                            glm::vec3{0,1,0},
-                            glm::vec3{1,1,0},
-                            glm::vec3{1,1,1},
-                            glm::vec3{0,1,1}
-                    }
-            },
-            // [5] DOWN (-Y)
-            FaceData{
-                    .normal = glm::vec3{0,-1,0},
-                    .tangent = glm::vec3{1,0,0},
-                    .corners = {
-                            glm::vec3{0,0,1},
-                            glm::vec3{1,0,1},
-                            glm::vec3{1,0,0},
-                            glm::vec3{0,0,0}
-                    }
+        // [0] NORTH (+Z)
+        FaceData{
+            .normal = glm::vec3{0,0,1},
+            .tangent = glm::vec3{-1,0,0},
+            .corners = {
+                glm::vec3{1,1,1},
+                glm::vec3{0,1,1},
+                glm::vec3{0,0,1},
+                glm::vec3{1,0,1}
             }
+        },
+        // [1] SOUTH (-Z)
+        FaceData{
+            .normal = glm::vec3{0,0,-1},
+            .tangent = glm::vec3{1,0,0},
+            .corners = {
+                glm::vec3{0,1,0},
+                glm::vec3{1,1,0},
+                glm::vec3{1,0,0},
+                glm::vec3{0,0,0}
+            }
+        },
+        // [2] EAST (+X)
+        FaceData{
+            .normal = glm::vec3{1,0,0},
+            .tangent = glm::vec3{0,0,-1},
+            .corners = {
+                glm::vec3{1,1,0},
+                glm::vec3{1,1,1},
+                glm::vec3{1,0,1},
+                glm::vec3{1,0,0}
+            }
+        },
+        // [3] WEST (-X)
+        FaceData{
+            .normal = glm::vec3{-1,0,0},
+            .tangent = glm::vec3{0,0,1},
+            .corners = {
+                glm::vec3{0,1,1},
+                glm::vec3{0,1,0},
+                glm::vec3{0,0,0},
+                glm::vec3{0,0,1}
+            }
+        },
+        // [4] UP (+Y)
+        FaceData{
+            .normal = glm::vec3{0,1,0},
+            .tangent = glm::vec3{1,0,0},
+            .corners = {
+                glm::vec3{0,1,1},
+                glm::vec3{1,1,1},
+                glm::vec3{1,1,0},
+                glm::vec3{0,1,0}
+            }
+        },
+        // [5] DOWN (-Y)
+        FaceData{
+            .normal = glm::vec3{0,-1,0},
+            .tangent = glm::vec3{1,0,0},
+            .corners = {
+                glm::vec3{0,0,0},
+                glm::vec3{1,0,0},
+                glm::vec3{1,0,1},
+                glm::vec3{0,0,1}
+            }
+        }
     };
 
     constexpr const FaceData& getFaceData(CubeFace face) {

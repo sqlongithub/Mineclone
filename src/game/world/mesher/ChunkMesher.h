@@ -20,7 +20,6 @@ namespace Mineclone {
         );
 
     private:
-        static std::array<glm::vec3, 4> calculateElementFaceCorners(const BlockElement& element, CubeFace face);
 
         static bool shouldRenderFace(uint8_t x, uint8_t y, uint8_t z, CubeFace face, const Chunk& chunk);
 
@@ -33,17 +32,6 @@ namespace Mineclone {
             LayeredMeshData<BlockVertex>& layeredMesh
         );
 
-        static void generateElementFaceVerticesInto(
-            uint8_t x, uint8_t y, uint8_t z,
-            const BlockRegistry& blockRegistry,
-            CubeFace face,
-            BlockId blockId,
-            const BlockElement& element,
-            const FaceDefinition& faceDefinition,
-            BiomeId biomeId,
-            LayeredMeshData<BlockVertex>& layeredMesh,
-            Layer layer
-        );
     };
 
 } // namespace Mineclone
