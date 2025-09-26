@@ -1,8 +1,6 @@
 #pragma once
 
-#include "System.h"
-#include "Registry.h"
-#include "Renderer.h"
+#include "ecs/System.h"
 
 namespace Mineclone {
     class ImGuiRenderSystem : public System {

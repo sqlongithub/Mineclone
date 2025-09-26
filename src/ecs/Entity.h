@@ -3,7 +3,7 @@
 
 namespace Mineclone {
     using Entity = uint32_t;
-    const Entity INVALID_ENTITY = 0;
+    constexpr Entity INVALID_ENTITY = 0;
 
     class EntityManager {
     public:

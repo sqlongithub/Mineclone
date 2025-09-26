@@ -2,10 +2,9 @@
 
 #include <unordered_map>
 #include "InputAction.h"
-#include "Window.h"
-#include "Registry.h"
-#include "System.h"
 #include "InputContextManager.h"
+#include "core/Window.h"
+#include "ecs/System.h"
 
 namespace Mineclone {
     class InputActionSystem : public System {
@@ -19,7 +18,7 @@ namespace Mineclone {
 
         void bindAxis(InputAction action, MouseAxis axis);
 
-        void update(Registry &registry, float dt) override; // Call once per frame
+        void update(Registry &registry, float dt) override;
 
     private:
         const Window& m_window;

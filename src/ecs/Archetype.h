@@ -7,7 +7,7 @@
 
 namespace Mineclone {
     template<typename... Components>
-    class Archetype : public ArchetypeBase {  // Make sure this inherits from ArchetypeBase
+    class Archetype : public ArchetypeBase {
     public:
         void add(Entity e, Components... comps) {
             m_entities.push_back(e);

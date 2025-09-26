@@ -1,6 +1,8 @@
 
 #include "DebugSystem.h"
-#include "InputState.h"
+
+#include "ecs/components/InputState.h"
+#include "game/input/InputAction.h"
 
 namespace Mineclone {
     DebugSystem::DebugSystem(Dispatcher& dispatcher)

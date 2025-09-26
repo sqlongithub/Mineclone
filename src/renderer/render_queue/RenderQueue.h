@@ -1,5 +1,6 @@
 #pragma once
 #include "RenderCommand.h"
+#include <array>
 
 namespace Mineclone {
     class RenderQueue {
@@ -9,9 +10,13 @@ namespace Mineclone {
         void add(const RenderCommand& cmd);
         void clear();
 
-        std::vector<RenderCommand>& getBucket(Layer layer);
-        [[nodiscard]] const std::vector<RenderCommand>& getBucket(Layer layer) const;
+        std::vector<RenderCommand>& getCommands(Layer layer);
+        [[nodiscard]] const std::vector<RenderCommand>& getCommands(Layer layer) const;
+
+        [[nodiscard]] size_t size() const;
+        [[nodiscard]] bool empty() const;
+
     private:
-        std::vector<RenderCommand> m_buckets[static_cast<size_t>(Layer::LAYER_COUNT)];
+        std::array<std::vector<RenderCommand>, LAYER_COUNT> m_commands{};
     };
 }

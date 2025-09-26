@@ -1,7 +1,8 @@
 #pragma once
 
+#include "IndexBuffer.h"
 #include "VertexBuffer.h"
-#include "VertexBufferLayout.h"
+#include "VertexLayout.h"
 
 namespace Mineclone {
     class VertexArray {
@@ -15,6 +16,7 @@ namespace Mineclone {
         VertexArray(VertexArray&& other) noexcept : m_id(other.m_id) {
             other.m_id = 0;
         }
+
         VertexArray& operator=(VertexArray&& other) noexcept {
             if (this != &other) {
                 if (m_id != 0) glDeleteVertexArrays(1, &m_id);
@@ -26,12 +28,14 @@ namespace Mineclone {
 
         void bind() const;
         void unbind() const;
-        void addBuffer(const VertexBuffer& vbo, const VertexBufferLayout& layout);
 
-        // only for debugging
+        void addBuffer(const VertexBuffer &vbo, const VertexLayout& layout);
+
+        void addIndexBuffer(const IndexBuffer& ibo);
+
         [[nodiscard]] unsigned int getId() const { return m_id; }
 
     private:
-        unsigned int m_id;
+        unsigned int m_id = 0;
     };
-} // Mineclone
+}

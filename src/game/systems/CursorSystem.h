@@ -1,10 +1,9 @@
 #pragma once
-
-#include "System.h"
-#include "Window.h"
-#include "Renderer.h"
+#include "ecs/System.h"
 
 namespace Mineclone {
+    class Window;
+
     class CursorSystem : public System {
     public:
         explicit CursorSystem(Window& window);
@@ -13,4 +12,4 @@ namespace Mineclone {
         Window& m_window;
     };
 
-} // Mineclone
+}

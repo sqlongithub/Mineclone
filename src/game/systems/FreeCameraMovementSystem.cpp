@@ -1,10 +1,12 @@
+#define GLM_ENABLE_EXPERIMENTAL
 
 #include "FreeCameraMovementSystem.h"
-#include "Camera.h"
-#include "input/InputAction.h"
-#include "InputState.h"
 #include <glm/gtx/string_cast.hpp>
 #include <iostream>
+
+#include "ecs/components/Camera.h"
+#include "ecs/components/InputState.h"
+#include "game/input/InputAction.h"
 
 namespace Mineclone {
     FreeCameraMovementSystem::FreeCameraMovementSystem(World& world)
@@ -16,12 +18,14 @@ namespace Mineclone {
     void FreeCameraMovementSystem::update(Registry &registry, float dt) {
         auto& input = registry.getSingleton<InputState>();
 
-        // Query entities with Transform
         registry.view<Transform, Camera>([&](Entity e, Transform& transform, Camera& camera) {
 
             glm::vec3 forward = transform.getForwardVector();
             glm::vec3 right = transform.getRightVector();
-            float speed = 8.0f; // units per second
+            float speed = 14.0f; // units per second
+            if (input.isActionPressed(InputAction::SPRINT)) {
+                speed *= 2;
+            }
 
             if (input.isActionPressed(InputAction::MOVE_FORWARD)) {
                 transform.position += forward * speed * dt;
@@ -36,7 +40,7 @@ namespace Mineclone {
                 transform.position += right * speed * dt;
             }
             if (input.isActionPressed(InputAction::JUMP)) {
-                transform.position.y += speed * dt; // simplistic
+                transform.position.y += speed * dt;
             }
 
 
@@ -52,7 +56,7 @@ namespace Mineclone {
             }
 
 
-            //m_world.loadChunksAroundPosition(transform.position);
+            m_world.loadChunksAroundPosition(transform.position, 16);
         });
     }
 }

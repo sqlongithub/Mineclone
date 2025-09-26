@@ -48,6 +48,7 @@ namespace Mineclone {
         glfwSetFramebufferSizeCallback(m_handle, framebufferSizeCallback);
 
         glEnable(GL_DEBUG_OUTPUT);
+        glEnable(GL_DEBUG_OUTPUT_SYNCHRONOUS);
         glDebugMessageCallback(Window::messageCallback, 0);
         IMGUI_CHECKVERSION();
         ImGui::CreateContext();

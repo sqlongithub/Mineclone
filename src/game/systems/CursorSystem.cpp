@@ -1,6 +1,7 @@
 
 #include "CursorSystem.h"
-#include "InputState.h"
+
+#include "ecs/components/InputState.h"
 
 namespace Mineclone {
     CursorSystem::CursorSystem(Window& window)

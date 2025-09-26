@@ -14,7 +14,6 @@ namespace Mineclone {
         using HandleType = Handle<T>;
 
         ResourceLibrary() {
-            // slot 0 is invalid
             m_resources.emplace_back(nullptr);
             m_generations.push_back(0);
         }
@@ -53,27 +52,23 @@ namespace Mineclone {
             return m_resources[handle.index].get();
         }
 
-        // Get resource by name
         T* get(const std::string& name) {
             auto it = m_nameToHandle.find(name);
             if (it == m_nameToHandle.end()) return nullptr;
             return get(it->second);
         }
 
-        // Get handle by name
         HandleType getHandle(const std::string& name) const {
             auto it = m_nameToHandle.find(name);
             return (it != m_nameToHandle.end()) ? it->second : HandleType::invalid();
         }
 
-        // Validate handle
         bool isValid(HandleType handle) const {
             return handle.index < m_resources.size() &&
                    handle.index > 0 &&
                    m_generations[handle.index] == handle.generation;
         }
 
-        // Unload resource
         void unload(const std::string& name) {
             auto it = m_nameToHandle.find(name);
             if (it != m_nameToHandle.end()) {
@@ -87,7 +82,6 @@ namespace Mineclone {
             }
         }
 
-        // Clear all resources
         void clear() {
             m_resources.clear();
             m_generations.clear();
@@ -98,7 +92,6 @@ namespace Mineclone {
             m_generations.push_back(0);
         }
 
-        // Get total count (including freed slots)
         [[nodiscard]] size_t size() const { return m_resources.size() - 1; } // -1 for invalid slot
 
     private:

@@ -1,8 +1,32 @@
 {
-  "name": "grass",
-  "textures": {
-    "top": "grass_block_top",
-    "bottom": "dirt",
-    "side": "grass_block_side"
+  "metadata": {
+    "name": "grass",
+    "displayName": "Grass Block"
+  },
+  "model": {
+    "textures": {
+      "top": "grass_block_top",
+      "bottom": "dirt",
+      "side": "grass_block_side",
+      "overlay": "grass_block_side_overlay"
+    },
+    "elements": [
+      {
+        "faces": {
+          "top": {"texture":  "#top", "tintindex":  0},
+          "bottom": {"texture":  "#bottom"},
+          "side": {"texture": "#side"}
+        }
+      },
+      {
+        "faces": {
+          "side": {"texture":  "#overlay", "tintindex":  0, "layer":  "TRANSPARENT"}
+        }
+      }
+
+
+
+
+    ]
   }
 }

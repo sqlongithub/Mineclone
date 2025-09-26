@@ -1,7 +1,7 @@
 #pragma once
 
 #include "Registry.h"
-#include "Renderer.h"
+#include "renderer/Renderer.h"
 
 namespace Mineclone {
     class System {

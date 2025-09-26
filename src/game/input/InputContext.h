@@ -8,7 +8,7 @@ namespace Mineclone {
         GAMEPLAY,
         MAIN_MENU,
         PAUSE_MENU,
-        DEBUG,
+        DEBUG_CONTEXT,
     };
 
     struct InputContext {

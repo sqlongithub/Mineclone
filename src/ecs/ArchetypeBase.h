@@ -17,7 +17,7 @@ namespace Mineclone {
 
         template<typename... Components>
         [[nodiscard]] bool hasAllComponents() const {
-            return (hasComponentType<Components>() && ...); // fold expression over all Components
+            return (hasComponentType<Components>() && ...);
         }
 
         [[nodiscard]] virtual bool hasComponentType(std::type_index tid) const = 0;

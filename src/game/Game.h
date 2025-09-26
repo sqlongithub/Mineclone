@@ -1,13 +1,9 @@
 #pragma once
 
 #include "../renderer/Renderer.h"
-#include "gpu/Vertex.h"
-#include "mesh/Mesh.h"
-#include "materials/Shader.h"
-#include "World.h"
-#include "SystemManager.h"
-#include "AssetManager.h"
-#include "BlockRegistry.h"
+#include "ecs/Registry.h"
+#include "ecs/SystemManager.h"
+#include "world/World.h"
 
 namespace Mineclone {
     class Game {
@@ -31,6 +27,7 @@ namespace Mineclone {
         Entity m_camera;
         World m_world;
         BlockRegistry m_blockRegistry;
+        BiomeRegistry m_biomeRegistry;
 
 
 

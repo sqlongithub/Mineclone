@@ -1,8 +1,18 @@
 {
-  "name": "stone",
-  "textures": {
-    "top": "stone",
-    "bottom": "stone",
-    "side": "stone"
+  "metadata": {
+    "name": "stone",
+    "displayName": "Stone Block"
+  },
+  "model": {
+    "textures": {
+
+    },
+    "elements": [
+      {
+        "faces": {
+          "all": {"texture": "stone"}
+        }
+      }
+    ]
   }
 }

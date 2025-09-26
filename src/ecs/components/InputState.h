@@ -1,26 +1,33 @@
 #pragma once
 
-#include <optional>
-#include "input/InputAction.h"
-#include "Entity.h"
+#include <unordered_map>
+#include "game/input/InputAction.h"
 
 namespace Mineclone {
     struct InputState {
-        // Action states
         std::unordered_map<InputAction, float> actionValues;
         std::unordered_map<InputAction, bool> actionPressed;
         std::unordered_map<InputAction, bool> actionJustPressed;
 
-        // Mouse delta
         float mouseDeltaX = 0.0f;
         float mouseDeltaY = 0.0f;
 
-        // Last known mouse position
         float lastMouseX = 0.0f;
         float lastMouseY = 0.0f;
 
-        bool isCursorCaptured;
-        bool isWireframeEnabled;
+        bool isCursorCaptured = false;
+        bool isWireframeEnabled = false;
+
+
+        InputState() = default;
+
+        InputState(const InputState& other) = default;
+
+        InputState(InputState&& other) noexcept = default;
+
+        InputState& operator=(const InputState& other) = default;
+
+        InputState& operator=(InputState&& other) noexcept = default;
 
         bool isActionPressed(InputAction action) const {
             auto it = actionPressed.find(action);

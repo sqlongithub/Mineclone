@@ -1,7 +1,6 @@
 #pragma once
 #include <string>
 #include "glad/glad.h"
-#define STB_IMAGE_IMPLEMENTATION
 
 namespace Mineclone {
     class Texture {

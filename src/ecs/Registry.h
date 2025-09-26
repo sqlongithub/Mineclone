@@ -3,8 +3,11 @@
 #include <typeindex>
 #include <memory>
 #include <iostream>
+#include <ranges>
+
 #include "Entity.h"
 #include "Archetype.h"
+#include <string>
 
 namespace Mineclone {
 
@@ -20,7 +23,7 @@ namespace Mineclone {
         }
 
         void removeEntity(Entity e) {
-            for (auto& [tid, archetype] : m_archetypes) {
+            for (const auto& archetype: m_archetypes | std::views::values) {
                 if (archetype->contains(e)) {
                     archetype->remove(e);
                 }
@@ -29,8 +32,7 @@ namespace Mineclone {
 
         template<typename... Components, typename Func>
         void view(Func&& func) const {
-            for (auto& [tid, archetype] : m_archetypes) {
-                // Check if this archetype contains ALL the requested components
+            for (const auto& archetype: m_archetypes | std::views::values) {
                 if (archetype->hasAllComponents<Components...>()) {
                     static_cast<const Archetype<Components...>*>(archetype.get())
                             ->forEach(std::forward<Func>(func));
@@ -38,11 +40,9 @@ namespace Mineclone {
             }
         }
 
-
         template<typename Component>
         Component& get(Entity e) {
-            // Find the archetype that contains Component
-            for (auto& [tid, archetype] : m_archetypes) {
+            for (const auto& archetype: m_archetypes | std::views::values) {
                 if (archetype->hasComponentType<Component>() && archetype->contains(e)) {
                     return archetype->template getComponent<Component>(e);
                 }
@@ -51,8 +51,8 @@ namespace Mineclone {
         }
 
         template<typename Component>
-        const Component& get(Entity e) const {
-            for (auto& [tid, archetype] : m_archetypes) {
+        const Component& get(const Entity e) const {
+            for (const auto &archetype: m_archetypes | std::views::values) {
                 if (archetype->hasComponentType<Component>() && archetype->contains(e)) {
                     return archetype->template getComponent<Component>(e);
                 }
@@ -63,8 +63,16 @@ namespace Mineclone {
         template<typename T, typename... Args>
         void setSingleton(Args&&... args) {
             static_assert(std::is_move_constructible_v<T>, "Singleton component must be move constructible");
+            static_assert(std::is_copy_assignable_v<T> || std::is_move_assignable_v<T>,
+                         "Singleton component must be assignable");
+
             auto tid = std::type_index(typeid(T));
-            m_singletons[tid] = std::make_unique<SingletonWrapper<T>>(T{std::forward<Args>(args)...});
+
+            if constexpr (sizeof...(Args) == 0) {
+                m_singletons[tid] = std::make_unique<SingletonWrapper<T>>(T{});
+            } else {
+                m_singletons[tid] = std::make_unique<SingletonWrapper<T>>(T{std::forward<Args>(args)...});
+            }
         }
 
         template<typename T>
@@ -73,12 +81,16 @@ namespace Mineclone {
             auto it = m_singletons.find(tid);
 
             if (it == m_singletons.end()) {
-                // Auto-create with default constructor if it doesn't exist
                 setSingleton<T>();
                 it = m_singletons.find(tid);
             }
 
-            return static_cast<SingletonWrapper<T>*>(it->second.get())->component;
+            auto* wrapper = dynamic_cast<SingletonWrapper<T>*>(it->second.get());
+            if (!wrapper) {
+                throw std::runtime_error("Singleton type mismatch - requested type doesn't match stored type");
+            }
+
+            return wrapper->component;
         }
 
         template<typename T>
@@ -90,7 +102,12 @@ namespace Mineclone {
                 throw std::runtime_error("Singleton component not found");
             }
 
-            return static_cast<const SingletonWrapper<T>*>(it->second.get())->component;
+            const auto* wrapper = dynamic_cast<const SingletonWrapper<T>*>(it->second.get());
+            if (!wrapper) {
+                throw std::runtime_error("Singleton type mismatch - requested type doesn't match stored type");
+            }
+
+            return wrapper->component;
         }
 
         template<typename T>
@@ -105,8 +122,6 @@ namespace Mineclone {
             m_singletons.erase(tid);
         }
 
-
-
     private:
         std::unordered_map<std::type_index, std::unique_ptr<ArchetypeBase>> m_archetypes;
 
@@ -115,11 +130,10 @@ namespace Mineclone {
         };
 
         template<typename T>
-        struct SingletonWrapper : SingletonWrapperBase {
+        struct SingletonWrapper final : SingletonWrapperBase {
             T component;
 
-            template<typename... Args>
-            explicit SingletonWrapper(Args&&... args) : component(std::forward<Args>(args)...) {}
+            explicit SingletonWrapper(T comp) : component(std::move(comp)) {}
         };
 
         std::unordered_map<std::type_index, std::unique_ptr<SingletonWrapperBase>> m_singletons;
@@ -138,5 +152,4 @@ namespace Mineclone {
             return *static_cast<Archetype<Components...>*>(it->second.get());
         }
     };
-
 }

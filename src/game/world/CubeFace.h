@@ -3,6 +3,7 @@
 #include <cstdint>
 #include "glm/vec3.hpp"
 #include <ranges>
+#include <string>
 
 namespace Mineclone {
     enum class CubeFace : uint8_t {
@@ -49,23 +50,16 @@ namespace Mineclone {
         return CubeFace::UNKNOWN;
     }
 
-    inline std::string getCubeFaceName(const CubeFace& face) {
+    inline constexpr const char* getCubeFaceName(const CubeFace face) {
         switch(face) {
-            case CubeFace::NORTH:
-                return "North";
-            case CubeFace::SOUTH:
-                return "South";
-            case CubeFace::EAST:
-                return "East";
-            case CubeFace::WEST:
-                return "West";
-            case CubeFace::UP:
-                return "Up";
-            case CubeFace::DOWN:
-                return "Down";
-            default:
-            case CubeFace::UNKNOWN:
-                return "Unknown";
+        case CubeFace::NORTH:   return "north";
+        case CubeFace::SOUTH:   return "south";
+        case CubeFace::EAST:    return "east";
+        case CubeFace::WEST:    return "west";
+        case CubeFace::UP:      return "up";
+        case CubeFace::DOWN:    return "down";
+        default:
+        case CubeFace::UNKNOWN: return "unknown";
         }
     }
 
@@ -90,8 +84,8 @@ namespace Mineclone {
 
     struct FaceData {
         glm::vec3 normal;
-        glm::vec3 tangent;     // for normal mapping
-        glm::vec3 corners[4];  // CCW winding order
+        glm::vec3 tangent;
+        glm::vec3 corners[4];
     };
 
 

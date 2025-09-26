@@ -1,0 +1,18 @@
+{
+  "name": "plains",
+  "displayName": "Plains",
+  "terrain": {
+    "temperature": 0.1,
+    "humidity": 0.0,
+    "continentalness": 0.2,
+    "erosion": 0.8,
+    "weirdness": 0.0
+  },
+  "grassTint": [0.678, 0.847, 0.412],
+  "foliageTint": [0.620, 0.780, 0.380],
+  "waterTint": [0.4, 0.6, 1.0],
+  "skyTint": [0.5, 0.7, 1.0],
+  "fogStart": 120.0,
+  "fogEnd": 160.0,
+  "fogColor": [0.8, 0.9, 1.0]
+}

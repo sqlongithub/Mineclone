@@ -1,0 +1,18 @@
+{
+  "metadata": {
+    "name": "snow",
+    "displayName": "Snow Block"
+  },
+  "model": {
+    "textures": {
+
+    },
+    "elements": [
+      {
+        "faces": {
+          "all": {"texture": "snow"}
+        }
+      }
+    ]
+  }
+}

@@ -10,7 +10,6 @@
 namespace Mineclone {
 
     Shader::Shader(const std::string &vertexPath, const std::string &fragmentPath) {
-        // 1. Load shader source code from files
         std::string vertexCode;
         std::string fragmentCode;
         std::ifstream vShaderFile(vertexPath);
@@ -30,13 +29,11 @@ namespace Mineclone {
         const char* vShaderCode = vertexCode.c_str();
         const char* fShaderCode = fragmentCode.c_str();
 
-        // 2. Compile vertex shader
         GLuint vertex = glCreateShader(GL_VERTEX_SHADER);
         glShaderSource(vertex, 1, &vShaderCode, nullptr);
         glCompileShader(vertex);
         printShaderCompileLog(vertex, "Vertex");
 
-        // Check for compile errors
         GLint success;
         glGetShaderiv(vertex, GL_COMPILE_STATUS, &success);
         if (!success) {
@@ -45,7 +42,6 @@ namespace Mineclone {
             std::cerr << "ERROR: Vertex shader compilation failed\n" << infoLog << std::endl;
         }
 
-        // 3. Compile fragment shader
         GLuint fragment = glCreateShader(GL_FRAGMENT_SHADER);
         glShaderSource(fragment, 1, &fShaderCode, nullptr);
         glCompileShader(fragment);
@@ -58,7 +54,6 @@ namespace Mineclone {
             std::cerr << "ERROR: Fragment shader compilation failed\n" << infoLog << std::endl;
         }
 
-        // 4. Link shaders into a program
         m_id = glCreateProgram();
         glAttachShader(m_id, vertex);
         glAttachShader(m_id, fragment);
@@ -84,11 +79,12 @@ namespace Mineclone {
             std::cerr << "ERROR: Shader program linking failed\n" << infoLog << std::endl;
         }
 
-        // 5. Delete individual shaders after linking
         glDeleteShader(vertex);
         glDeleteShader(fragment);
 
+#ifdef DEBUG
         std::cout << "Shader program ID: " << m_id << std::endl;
+#endif
     }
 
     Shader::~Shader() {
@@ -129,14 +125,6 @@ namespace Mineclone {
         glUseProgram(0);
     }
 
-    void Shader::setUniform4f(const std::string &name, float x, float y, float z, float w) {
-        glUniform4f(getUniformLocation(name), x, y, z, w);
-    }
-
-    void Shader::setUniformMat4(const std::string &name, const glm::mat4& matrix, bool transpose) const {
-        glUniformMatrix4fv(getUniformLocation(name), 1, transpose, glm::value_ptr(matrix));
-    }
-
     void Shader::compile() {
 
     }
@@ -149,7 +137,4 @@ namespace Mineclone {
         return location;
     }
 
-    void Shader::setUniformInt(const std::string &name, int value) const {
-        glUniform1i(getUniformLocation(name), value);
-    }
 }

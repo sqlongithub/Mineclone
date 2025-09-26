@@ -5,23 +5,16 @@
 #include "GLFW/glfw3.h"
 
 #include "Application.h"
-#include "RenderSystem.h"
-#include "imgui.h"
+
 #include "imgui_impl_glfw.h"
 #include "imgui_impl_opengl3.h"
-#include "CursorSystem.h"
-#include "InputActionSystem.h"
-
+#include "game/input/InputActionSystem.h"
+#include "game/systems/CursorSystem.h"
 
 namespace Mineclone {
 
     Application::Application(const std::string &title)
-        : m_dispatcher(),
-          m_window("Mineclone", 2160, 1215, m_dispatcher),
-          m_renderer(),
-          m_registry(),
-          m_systemManager(),
-          m_contextManager(),
+        : m_window("Mineclone", 2160, 1215, m_dispatcher),
           m_game(m_registry, m_systemManager, m_dispatcher) {
 
         m_systemManager.addSystem<InputActionSystem>(m_window, m_contextManager);

@@ -1,9 +1,7 @@
 #pragma once
-
-#include "Window.h"
-#include "World.h"
-#include "System.h"
-#include "Registry.h"
+#include "ecs/Registry.h"
+#include "ecs/System.h"
+#include "game/world/World.h"
 
 namespace Mineclone {
     class FreeCameraMovementSystem : public System {

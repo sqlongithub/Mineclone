@@ -1,7 +1,8 @@
 #include "InputActionSystem.h"
 #include "InputAction.h"
+#include "ecs/components/InputState.h"
 #include "GLFW/glfw3.h"
-#include "InputState.h"
+
 
 namespace Mineclone {
 
@@ -16,6 +17,8 @@ namespace Mineclone {
         bindAction(InputAction::MOVE_BACKWARD, GLFW_KEY_S);
         bindAction(InputAction::MOVE_LEFT, GLFW_KEY_A);
         bindAction(InputAction::MOVE_RIGHT, GLFW_KEY_D);
+        bindAction(InputAction::SPRINT, GLFW_KEY_LEFT_CONTROL);
+
         bindAction(InputAction::JUMP, GLFW_KEY_SPACE);
         bindAction(InputAction::INTERACT, GLFW_KEY_E);
         bindAction(InputAction::ATTACK, GLFW_MOUSE_BUTTON_LEFT);
@@ -41,14 +44,12 @@ namespace Mineclone {
 
         inputState.actionJustPressed.clear();
 
-        // Mouse position & delta
         auto [mouseX, mouseY] = m_window.getCurrentMousePosition();
         inputState.mouseDeltaX = mouseX - inputState.lastMouseX;
         inputState.mouseDeltaY = mouseY - inputState.lastMouseY;
         inputState.lastMouseX = mouseX;
         inputState.lastMouseY = mouseY;
 
-        // Keyboard actions
         for (const auto& [action, keys] : m_actionBindings) {
             InputAction mapped = m_contextManager.mapAction(action);
 
@@ -67,7 +68,6 @@ namespace Mineclone {
             inputState.actionValues[mapped] = isPressed ? 1.0f : 0.0f;
         }
 
-        // Mouse axes
         for (const auto& [action, axis] : m_axisBindings) {
             float value = 0.0f;
             switch (axis) {

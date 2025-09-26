@@ -5,8 +5,8 @@
 namespace Mineclone {
     template<typename T>
     struct Handle {
-        uint32_t index : 16;     // Max 16M resources per type
-        uint32_t generation : 16; // Handle validation
+        uint32_t index : 16;     // max 16M resources per type
+        uint32_t generation : 16; // validation
 
         constexpr Handle() : index(0), generation(0) {}
         constexpr Handle(uint32_t idx, uint32_t gen) : index(idx), generation(gen) {}

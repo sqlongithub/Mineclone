@@ -1,18 +1,13 @@
 #pragma once
 
 #include "../core/Window.h"
-#include "glm/vec3.hpp"
-#include "glm/vec4.hpp"
+#include "assets/AssetManager.h"
 #include "glm/common.hpp"
 #include "render_queue/RenderCamera.h"
-#include "Registry.h"
-#include "Camera.h"
-#include "mesh/Mesh.h"
 #include "materials/Shader.h"
 #include "render_queue/RenderQueue.h"
 #include "gpu/FrameData.h"
 #include "gpu/UniformBuffer.h"
-#include "AssetManager.h"
 
 inline void checkGLError(const std::string& location) {
     GLenum err;
@@ -46,7 +41,7 @@ namespace Mineclone {
 
     private:
         static void executeCommand(const RenderCommand& cmd, const AssetManager& assets);
-
+        
         RenderQueue m_renderQueue;
         FrameData m_frameData{};
         UniformBuffer m_frameUBO;

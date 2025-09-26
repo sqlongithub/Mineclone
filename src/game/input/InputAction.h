@@ -6,6 +6,7 @@ namespace Mineclone {
         MOVE_BACKWARD,
         MOVE_LEFT,
         MOVE_RIGHT,
+        SPRINT,
         JUMP,
         LOOK_HORIZONTAL,
         LOOK_VERTICAL,

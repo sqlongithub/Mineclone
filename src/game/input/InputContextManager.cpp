@@ -14,9 +14,9 @@ namespace Mineclone {
         for (const auto & it : std::ranges::reverse_view(m_contextStack)) {
             auto found = it.remap.find(action);
             if (found != it.remap.end())
-                return found->second; // original -> [remap]
+                return found->second;
         }
-        return action; // fallback
+        return action;
     }
 
 }

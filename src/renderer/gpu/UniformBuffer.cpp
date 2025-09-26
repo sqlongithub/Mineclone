@@ -1,5 +1,6 @@
 #include "UniformBuffer.h"
 #include "glad/glad.h"
+#include <cstddef>
 
 namespace Mineclone {
     UniformBuffer::UniformBuffer(std::size_t size, uint32_t binding)

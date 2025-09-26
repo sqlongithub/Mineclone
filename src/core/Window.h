@@ -39,5 +39,5 @@ namespace Mineclone {
                         const void *userParam);
     };
 
-} // Mineclone
+}
 

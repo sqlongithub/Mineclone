@@ -3,16 +3,22 @@
 #include "BlockRegistry.h"
 
 namespace Mineclone {
-    Chunk::Chunk()
-        : m_blocks(std::make_unique<Block[]>(CHUNK_VOLUME)) {
+    Chunk::Chunk() {
 
     }
 
-    Block Chunk::getBlock(int x, int y, int z) const {
+    Block* Chunk::getBlock(int x, int y, int z) {
         if (x < 0 || x >= CHUNK_WIDTH || y < 0 || y >= CHUNK_HEIGHT || z < 0 || z >= CHUNK_DEPTH) {
-            return Block { AIR_BLOCK_ID };
+            return nullptr;
         }
-        return m_blocks[getIndex(x, y, z)];
+        return &m_blocks[getIndex(x, y, z)];
+    }
+
+    const Block* Chunk::getBlock(int x, int y, int z) const {
+        if (x < 0 || x >= CHUNK_WIDTH || y < 0 || y >= CHUNK_HEIGHT || z < 0 || z >= CHUNK_DEPTH) {
+            return nullptr;
+        }
+        return &m_blocks[getIndex(x, y, z)];
     }
 
     void Chunk::setBlock(int x, int y, int z, const Block &block) {
@@ -21,59 +27,85 @@ namespace Mineclone {
         }
         m_blocks[getIndex(x, y, z)] = block;
         m_meshDirty = true;
+
     }
 
     void Chunk::setBlock(int x, int y, int z, BlockId id) {
         setBlock(x, y, z, Block(id));
     }
 
-    HorizontalSlice Chunk::getSlice(int minY, int maxY) const {
-        return HorizontalSlice(this,
-                               std::max(0, minY),
-                               std::min(CHUNK_HEIGHT - 1, maxY));
+    void Chunk::setBiome(int x, int z, BiomeId id) {
+        m_biomes[getIndex(x, z)] = id;
     }
 
-    // returns all non-empty slices minY, maxY
-    std::vector<std::pair<int, int>> Chunk::getNonEmptySliceRanges(int sliceHeight) const {
-        std::vector<std::pair<int, int>> ranges;
+    BiomeId Chunk::getBiome(int x, int z) const {
+        return m_biomes[getIndex(x, z)];
+    }
 
-        for (int y = 0; y < CHUNK_HEIGHT; y += sliceHeight) {
-            int maxY = std::min(y + sliceHeight - 1, CHUNK_HEIGHT - 1);
-            HorizontalSlice slice = getSlice(y, maxY);
+    bool Chunk::isSectionEmpty(int sectionIndex) const {
+        if (m_sectionsDirty) {
+            recalculateSections();
+        }
+        return !m_nonEmptySections[sectionIndex];
+    }
 
-            if (!slice.isEmpty()) {
-                ranges.emplace_back(y, maxY);
+    int Chunk::getMinNonEmptySection() const  {
+        if (m_sectionsDirty) recalculateSections();
+        for (int i = 0; i < SECTIONS_PER_CHUNK; i++) {
+            if (m_nonEmptySections[i]) return i;
+        }
+        return -1;
+    }
+
+    int Chunk::getMaxNonEmptySection() const  {
+        if (m_sectionsDirty) recalculateSections();
+        for (int i = SECTIONS_PER_CHUNK - 1; i >= 0; i--) {
+            if (m_nonEmptySections[i]) return i;
+        }
+        return -1;
+    }
+
+    void Chunk::recalculateSections() const {
+        m_nonEmptySections.reset();
+
+        for (int section = 0; section < SECTIONS_PER_CHUNK; section++) {
+            int minY = section * SECTION_HEIGHT;
+            int maxY = std::min(minY + SECTION_HEIGHT - 1, CHUNK_HEIGHT - 1);
+
+            bool hasBlocks = false;
+            for (int y = minY; y <= maxY && !hasBlocks; y++) {
+                for (int z = 0; z < CHUNK_DEPTH && !hasBlocks; z++) {
+                    for (int x = 0; x < CHUNK_WIDTH && !hasBlocks; x++) {
+                        const Block* block = getBlock(x, y, z);
+                        if (block && block->id != AIR_BLOCK_ID) {
+                            hasBlocks = true;
+                        }
+                    }
+                }
+            }
+
+            if (hasBlocks) {
+                m_nonEmptySections[section] = true;
             }
         }
 
-        return ranges;
-    }
-
-    std::vector<HorizontalSlice> Chunk::getNonEmptySlices(int sliceHeight) const {
-        std::vector<HorizontalSlice> slices;
-        slices.reserve((CHUNK_HEIGHT / sliceHeight) / 2);
-        for (int y = 0; y < CHUNK_HEIGHT; y += sliceHeight) {
-            int maxY = std::min(y + sliceHeight - 1, CHUNK_HEIGHT - 1);
-            HorizontalSlice slice = getSlice(y, maxY);
-
-            if (!slice.isEmpty()) {
-                slices.push_back(slice);
-            }
-        }
-
-        return slices;
+        m_sectionsDirty = false;
     }
 
     int Chunk::getTopBlockY(int x, int z) const {
         for (int y = CHUNK_HEIGHT - 1; y >= 0; y--) {
-            if (getBlock(x, y, z).id != AIR_BLOCK_ID) {
+            if (auto* block = getBlock(x, y, z); block && block->id != AIR_BLOCK_ID) {
                 return y;
             }
         }
-        return -1; // all air
+        return -1;
     }
 
     size_t Chunk::getIndex(int x, int y, int z) {
         return x + z * CHUNK_WIDTH + y * CHUNK_WIDTH * CHUNK_DEPTH;
+    }
+
+    size_t Chunk::getIndex(int x, int z) {
+        return x + z * CHUNK_WIDTH;
     }
 }

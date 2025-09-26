@@ -1,9 +1,8 @@
 #pragma once
 
 #include "ResourceLibrary.h"
-#include "materials/Shader.h"
-#include "materials/Material.h"
-#include "TextureArray.h"
+#include "renderer/materials/Material.h"
+#include "renderer/materials/Texture.h"
 
 namespace Mineclone {
     class AssetManager {

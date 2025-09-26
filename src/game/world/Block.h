@@ -9,36 +9,12 @@ namespace Mineclone {
     constexpr BlockId AIR_BLOCK_ID = 0;
 
     struct Block {
-        BlockId id;
+        BlockId id = AIR_BLOCK_ID;
 
         Block() = default;
 
         constexpr explicit Block(BlockId i) noexcept : id{i} {}
     };
 
-    struct BlockMetadata {
-        std::string name;
-        std::string displayName;
 
-        bool placeable = true;
-        bool breakable = true;
-        std::vector<std::string> tags;  // ["stone", "building_block"]
-
-        std::string requiredTool;
-        int minToolLevel = 0;           // Minimum tool tier needed
-
-        std::string dropItem;
-        int dropCount = 1;
-        float dropChance = 1.0f;
-
-        struct ExtraDrop {
-            std::string item;
-            int count;
-            float chance;
-        };
-        std::vector<ExtraDrop> extraDrops;
-
-        bool generateMipmaps = true;
-        int lodDistance = 100;
-    };
 }

@@ -9,9 +9,9 @@
 
 namespace Mineclone {
     struct Transform {
-        glm::vec3 position = glm::vec3(0.0f);        // World position
-        glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);  // Orientation as quaternion
-        glm::vec3 scale    = glm::vec3(1.0f);        // Scale along each axis
+        glm::vec3 position = glm::vec3(0.0f);
+        glm::quat rotation = glm::quat(1.0f, 0.0f, 0.0f, 0.0f);
+        glm::vec3 scale    = glm::vec3(1.0f);
 
         [[nodiscard]] glm::mat4 getMatrix() const {
             glm::mat4 mat = glm::translate(glm::mat4(1.0f), position);

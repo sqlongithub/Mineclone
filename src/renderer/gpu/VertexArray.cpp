@@ -1,15 +1,21 @@
 #include <iostream>
 #include "glad/glad.h"
 #include "VertexArray.h"
+#include "IndexBuffer.h"
 
 namespace Mineclone {
 
     VertexArray::VertexArray() {
         glGenVertexArrays(1, &m_id);
+        if (m_id == 0) {
+            std::cerr << "ERROR: Failed to generate Vertex Array Object!" << std::endl;
+        }
     }
 
     VertexArray::~VertexArray() {
-        glDeleteVertexArrays(1, &m_id);
+        if (m_id != 0) {
+            glDeleteVertexArrays(1, &m_id);
+        }
     }
 
     void VertexArray::bind() const {
@@ -20,24 +26,44 @@ namespace Mineclone {
         glBindVertexArray(0);
     }
 
-    void VertexArray::addBuffer(const Mineclone::VertexBuffer &vbo, const Mineclone::VertexBufferLayout &layout) {
+    void VertexArray::addBuffer(const VertexBuffer &vbo, const VertexLayout& layout) {
         bind();
         vbo.bind();
-        const auto& elements = layout.getElements();
 
-        unsigned int offset = 0;
-        for(unsigned int i = 0; i < elements.size(); i++) {
-            const auto& element = elements[i];
+        const auto& attributes = layout.getAttributes();
+        size_t stride = layout.getStride();
+
+        for (unsigned int i = 0; i < attributes.size(); ++i) {
+            const auto& attr = attributes[i];
             glEnableVertexAttribArray(i);
 
-            if(element.type == GL_INT || element.type == GL_UNSIGNED_INT) {
-                glVertexAttribIPointer(i, element.count, element.type,
-                                       layout.getStride(), (const void*)offset);
+            if (attr.type == GL_INT || attr.type == GL_UNSIGNED_INT || attr.type == GL_UNSIGNED_BYTE) {
+                glVertexAttribIPointer(
+                        i,
+                        attr.count,
+                        attr.type,
+                        static_cast<GLsizei>(stride),
+                        reinterpret_cast<const void*>(attr.offset)
+                );
             } else {
-                glVertexAttribPointer(i, element.count, element.type, element.normalized, layout.getStride(),
-                                      reinterpret_cast<const void *>(offset));
+                glVertexAttribPointer(
+                        i,
+                        attr.count,
+                        attr.type,
+                        attr.normalized,
+                        static_cast<GLsizei>(stride),
+                        reinterpret_cast<const void*>(attr.offset)
+                );
             }
-            offset += element.count * VertexBufferElement::getSizeOfGLType(element.type);
         }
+
+        vbo.unbind();
+        unbind();
     }
-} // Mineclone
+
+    void VertexArray::addIndexBuffer(const IndexBuffer& ibo) {
+        bind();
+        ibo.bind();
+        unbind();
+    }
+}

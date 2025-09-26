@@ -1,9 +1,6 @@
 #pragma once
 
 #include "System.h"
-#include "Window.h"
-#include "Registry.h"
-#include "Renderer.h"
 
 namespace Mineclone {
     class SystemManager {

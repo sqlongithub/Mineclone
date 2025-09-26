@@ -1,8 +1,5 @@
 #include "ImGuiRenderSystem.h"
 
-#include "Registry.h"
-#include "Renderer.h"
-
 namespace Mineclone {
     ImGuiRenderSystem::ImGuiRenderSystem() {
 

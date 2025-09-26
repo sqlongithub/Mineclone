@@ -1,6 +1,8 @@
 #pragma once
-#include "System.h"
-#include "Renderer.h"
+
+#include "ecs/System.h"
+#include "renderer/Renderer.h"
+#include "renderer/assets/AssetManager.h"
 
 namespace Mineclone {
     class RenderSystem : public System {

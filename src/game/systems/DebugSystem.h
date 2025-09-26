@@ -1,8 +1,6 @@
 #pragma once
-
-#include "System.h"
-#include "Dispatcher.h"
-#include "Registry.h"
+#include "core/Dispatcher.h"
+#include "ecs/System.h"
 
 namespace Mineclone {
     class DebugSystem : public System {

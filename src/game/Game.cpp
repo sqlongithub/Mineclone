@@ -1,20 +1,15 @@
 #include "Game.h"
-#include "gpu/Vertex.h"
-#include "mesh/Mesh.h"
-#include "glm/detail/type_mat4x4.hpp"
-#include "glm/ext/matrix_transform.hpp"
-#include "glm/ext/matrix_clip_space.hpp"
-#include "glm/gtx/string_cast.hpp"
-#include "RenderSystem.h"
-#include "Renderable.h"
-#include "RenderLayer.h"
-#include "ImGuiRenderSystem.h"
-#include "DebugSystem.h"
-#include "CursorSystem.h"
-#include "ChunkRenderSystem.h"
+#include <cstddef>
+
 #include "imgui.h"
-#include "FreeCameraMovementSystem.h"
-#include "InputState.h"
+#include "ecs/components/Camera.h"
+#include "ecs/components/InputState.h"
+#include "ecs/components/Transform.h"
+#include "glm/gtx/string_cast.hpp"
+#include "systems/ChunkRenderSystem.h"
+#include "systems/DebugSystem.h"
+#include "systems/FreeCameraMovementSystem.h"
+#include "systems/RenderSystem.h"
 
 namespace Mineclone {
 
@@ -24,12 +19,13 @@ namespace Mineclone {
               m_systemManager(systemManager),
               m_registry(registry),
               m_dispatcher(dispatcher),
-              m_world(m_blockRegistry, 69420),
-              m_blockRegistry(m_assetManager.blockTextures())
+              m_world(m_blockRegistry, m_biomeRegistry, 69420),
+              m_blockRegistry(m_assetManager.blockTextures()),
+              m_biomeRegistry()
     {
         m_camera = m_entityManager.create();
         m_registry.addEntity(m_camera, Transform {
-                {0, 50, 0}
+                {0, 80, 0}
         }, Camera{});
 
         auto& camT = registry.get<Transform>(m_camera);
@@ -39,24 +35,38 @@ namespace Mineclone {
         initAssets();
 
         m_world.loadChunksAroundPosition(camT.position, 1);
+
+        printf("=== ACTUAL VERTEX STRUCT LAYOUT ===\n");
+        printf("position offset: %zu\n", offsetof(BlockVertex, position));
+        printf("faceIndex offset: %zu\n", offsetof(BlockVertex, faceIndex));
+        printf("uv offset: %zu\n", offsetof(BlockVertex, uv));
+        printf("textureIndex offset: %zu\n", offsetof(BlockVertex, textureIndex));
+        printf("tintIndex offset: %zu\n", offsetof(BlockVertex, tintIndex));
+        printf("sizeof(BlockVertex): %zu\n", sizeof(BlockVertex));
     }
 
     void Game::initAssets() {
         auto shader = m_assetManager.shaders().create("texture", "resources/shaders/texture.vert", "resources/shaders/texture.frag");
-        auto material = m_assetManager.materials().create("texture", shader, &m_assetManager.blockTextures());
+        auto materialHandle = m_assetManager.materials().create("texture", shader, &m_assetManager.blockTextures());
+        auto material = m_assetManager.materials().get(materialHandle);
+
+
 
         if(!m_assetManager.blockTextures().addTextures("resources/textures/blocks")) {
             std::cerr << "Failed to load textures!" << std::endl;
         }
 
         m_blockRegistry.loadFromDirectory("resources/blocks");
+        m_biomeRegistry.loadFromDirectory("resources/biomes");
+
+        material->parameters.setVec3Array("uBiomeTints", m_biomeRegistry.getTints());
 
     }
 
     void Game::initSystems() {
         m_systemManager.addSystem<FreeCameraMovementSystem>(m_world);
         m_systemManager.addSystem<DebugSystem>(m_dispatcher);
-        m_systemManager.addSystem<ChunkRenderSystem>(m_world, m_assetManager, m_blockRegistry);
+        m_systemManager.addSystem<ChunkRenderSystem>(m_world, m_assetManager, m_blockRegistry, m_biomeRegistry);
 
         m_systemManager.addSystem<RenderSystem>(m_assetManager);
         m_systemManager.getSystem<RenderSystem>().setActiveCamera(m_camera);
@@ -79,37 +89,54 @@ namespace Mineclone {
         const auto& chunks = m_world.getLoadedChunks();
         ImGui::Text("Loaded chunks: %zu", chunks.size());
 
-        for (auto& [pos, chunk] : chunks) {
-            int nonAirCount = 0;
+        if (ImGui::TreeNode("Looking at")) {
+            auto hit = m_world.raycast(camT.position, camT.getForwardVector());
+            if(!hit.has_value()) {
+                ImGui::Text("Nothing");
+            } else {
+                const auto& block = hit->block;
+                auto faceIdx = static_cast<int>(hit->face);
 
-            for (auto slice: chunk.getNonEmptySlices()) {
-                for (uint8_t y = 0; y < slice.getHeight(); y++)
-                    for (uint8_t z = 0; z < CHUNK_DEPTH; z++)
-                        for (uint8_t x = 0; x < CHUNK_WIDTH; x++)
-                            if (slice.getBlock(x, y, z).id != AIR_BLOCK_ID)
-                                nonAirCount++;
-            }
+                ImGui::Text("World pos: (%d, %d, %d)", hit->blockPos.x, hit->blockPos.y, hit->blockPos.z);
+                ImGui::Text("Id: %d (%s)", block.id, m_blockRegistry.getMetadata(block.id)->name.data());
 
-            if (ImGui::TreeNode((void *) (intptr_t) &chunk, "Chunk (%d,%d)", pos.x, pos.z)) {
-                ImGui::Text("Non-air blocks: %d", nonAirCount);
+                auto biomeId = m_world.getBiome(hit->blockPos);
+                ImGui::Text("Biome: %d (%s)", biomeId, m_biomeRegistry.getBiomeName(biomeId));
 
-                // Optionally, show first few block types
-                int count = 0;
-                for (auto slice: chunk.getNonEmptySlices()) {
-                    for (uint8_t y = 0; y < slice.getHeight(); y++)
-                        for (uint8_t z = 0; z < CHUNK_DEPTH; z++)
-                            for (uint8_t x = 0; x < CHUNK_WIDTH; x++) {
-                                const Block &b = slice.getBlock(x, y, z);
-                                if (b.id != AIR_BLOCK_ID && count < 10) {
-                                    ImGui::Text("Block at local (%d,%d,%d): type %d", x, y, z, b.id);
-                                    count++;
+                const auto& model = m_blockRegistry.getModel(block.id);
+                if (ImGui::TreeNode("Elements")) {
+                    for(size_t i = 0; i < model->elements.size(); i++) {
+                        const auto& element = model->elements[i];
+                        if (ImGui::TreeNode(std::to_string(i).data())) {
+                            ImGui::Text("from: (%d, %d, %d)", (int)element.from[0], (int)element.from[1], (int)element.from[2]);
+                            ImGui::Text("to: (%d, %d, %d)", (int)element.to[0], (int)element.to[1], (int)element.to[2]);
+                            if(ImGui::TreeNode("Faces")) {
+                                for(const auto& face : element.faces) {
+                                    if(ImGui::TreeNode(face.first.data())) {
+                                        const auto faceDef = face.second;
+                                        ImGui::Text("uv: (%d, %d) -> (%d, %d)", (int)faceDef.uv[0], (int)faceDef.uv[1], (int)faceDef.uv[2], (int)faceDef.uv[3]);
+                                        ImGui::Text("texture: %s (index %d)", faceDef.texture.data(), m_assetManager.blockTextures().getTextureIndex(faceDef.texture));
+                                        if(faceDef.cullFace.has_value()) {
+                                            ImGui::Text("cullface: %s", faceDef.cullFace->data());
+                                        } else {
+                                            ImGui::Text("cullface: none");
+                                        }
+                                        auto tint = m_biomeRegistry.getTints()[faceDef.tintIndex];
+                                        ImGui::Text("tintindex: %d -> (%d, %d, %d)", faceDef.tintIndex, tint.x, tint.y, tint.z);
+                                        ImGui::TreePop();
+                                    }
                                 }
+                                ImGui::TreePop();
                             }
+                            ImGui::TreePop();
+                        }
+                    }
+                    ImGui::TreePop();
                 }
-
-                ImGui::TreePop();
             }
+            ImGui::TreePop();
         }
+
         ImGui::End();
 
         ImGui::Begin("Renderer");
@@ -132,6 +159,20 @@ namespace Mineclone {
         ImGui::End();
 
         ImGui::Begin("Assets");
+        if(ImGui::TreeNode("Biomes")) {
+            for(int i = 0; i < m_biomeRegistry.getBiomeCount(); i++) {
+                if(ImGui::TreeNode(m_biomeRegistry.getBiomeName(i)->get().data())) {
+                    if(ImGui::TreeNode("Metadata")) {
+                        ImGui::Text("Name: %s", m_biomeRegistry.getBiomeName(i)->get().data());
+                        ImGui::TreePop();
+                    }
+                    auto tint = m_biomeRegistry.getTints()[i];
+                    ImGui::Text("Tint: (%f, %f, %f)", tint.x, tint.y, tint.z);
+                    ImGui::TreePop();
+                }
+            }
+            ImGui::TreePop();
+        }
         if(ImGui::TreeNode("Blocks")) {
             for(size_t i = 1; i < m_blockRegistry.getBlockCount(); i++) {
                 const auto& meta = m_blockRegistry.getMetadata(i);
@@ -139,11 +180,33 @@ namespace Mineclone {
                     ImGui::Text("ID: %d", i);
                     if(ImGui::TreeNode("Model")) {
                         const auto& model = m_blockRegistry.getModel(i);
-                        if(ImGui::TreeNode("Faces")) {
-                            for(int j = 0; j < 6; j++) {
-                                const auto face = static_cast<CubeFace>(j);
-                                int texIndex = m_blockRegistry.getTextureIndex(i, face);
-                                ImGui::Text("%s: Index %d: %s", getCubeFaceName(face).data(), texIndex, m_assetManager.blockTextures().getTextureName(texIndex).data());
+                        if (ImGui::TreeNode("Elements")) {
+                            for(size_t j = 0; j < model->elements.size(); j++) {
+                                const auto& element = model->elements[j];
+                                if (ImGui::TreeNode(std::to_string(j).data())) {
+                                    ImGui::Text("from: (%f, %f, %f)", (int)element.from[0], (int)element.from[1], (int)element.from[2]);
+                                    ImGui::Text("to: (%f, %f, %f)", (int)element.to[0], (int)element.to[1], (int)element.to[2]);
+                                    if(ImGui::TreeNode("Faces")) {
+                                        for(const auto& face : element.faces) {
+                                            if(ImGui::TreeNode(face.first.data())) {
+                                                const auto faceDef = face.second;
+                                                ImGui::Text("uv: (%f, %f) -> (%f, %f)", (int)faceDef.uv[0], (int)faceDef.uv[1], (int)faceDef.uv[2], (int)faceDef.uv[3]);
+                                                ImGui::Text("texture: %s (index %d)", faceDef.texture.data(), m_assetManager.blockTextures().getTextureIndex(faceDef.texture));
+                                                if(faceDef.cullFace.has_value()) {
+                                                    ImGui::Text("cullface: %s", faceDef.cullFace->data());
+                                                } else {
+                                                    ImGui::Text("cullface: none");
+                                                }
+                                                auto tint = m_biomeRegistry.getTints()[faceDef.tintIndex];
+                                                ImGui::Text("tintindex: %d -> (%f, %f, %f)", faceDef.tintIndex, tint.x, tint.y, tint.z);
+                                                ImGui::Text("layer: %d", faceDef.layer);
+                                                ImGui::TreePop();
+                                            }
+                                        }
+                                        ImGui::TreePop();
+                                    }
+                                    ImGui::TreePop();
+                                }
                             }
                             ImGui::TreePop();
                         }

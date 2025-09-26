@@ -1,6 +1,5 @@
 #include "SystemManager.h"
 #include "Registry.h"
-#include "Renderer.h"
 
 namespace Mineclone {
     void SystemManager::updateAll(Registry& registry, float dt) {

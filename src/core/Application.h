@@ -4,7 +4,7 @@
 #include "Window.h"
 #include "../game/Game.h"
 #include "Dispatcher.h"
-#include "InputContextManager.h"
+#include "game/input/InputContextManager.h"
 
 namespace Mineclone {
 

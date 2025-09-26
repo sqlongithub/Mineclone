@@ -1,4 +1,4 @@
-
+#define STB_IMAGE_IMPLEMENTATION
 #include <stdexcept>
 #include <iostream>
 #include <filesystem>
@@ -63,7 +63,7 @@ namespace Mineclone {
 
     int TextureArray::addTextures(const std::string& directory) {
         namespace fs = std::filesystem;
-        int success;
+        int success = m_currentLayers;
         for (const auto& entry: fs::directory_iterator(directory)) {
             if (!entry.is_regular_file())
                 continue;
@@ -78,6 +78,8 @@ namespace Mineclone {
 
             int index = addTexture(name, path.string());
             if (index < 0) {
+                success = index;
+            } else {
                 success = index;
             }
         }
@@ -155,4 +157,4 @@ namespace Mineclone {
     }
 
 
-} // Mineclone
+}

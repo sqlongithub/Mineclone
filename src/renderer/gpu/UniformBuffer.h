@@ -15,7 +15,7 @@ namespace Mineclone {
     private:
         unsigned int m_id;
         uint32_t m_bindingPoint;
-        std::size_t m_size;
+        size_t m_size;
 
     };
 }
