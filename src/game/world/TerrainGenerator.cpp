@@ -160,7 +160,7 @@ namespace Mineclone {
         const auto& bp = metadata->terrainParameters;
 
         int baseHeight = 64;
-        int amplitude = 25;
+        int amplitude = 12;
 
         float continentalFactor = (bp.continentalness + 1.0f) * 0.5f;
         baseHeight += static_cast<int>((continentalFactor - 0.5f) * 35);
