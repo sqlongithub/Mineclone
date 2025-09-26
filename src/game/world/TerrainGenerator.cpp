@@ -8,34 +8,53 @@ namespace Mineclone {
 
         m_heightNoise.SetSeed(m_seed);
         m_heightNoise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
-        m_heightNoise.SetFrequency(0.008f);
+        m_heightNoise.SetFrequency(0.003f);
         m_heightNoise.SetFractalType(FastNoiseLite::FractalType_FBm);
-        m_heightNoise.SetFractalOctaves(4);
-        m_heightNoise.SetFractalLacunarity(2.0f);
-        m_heightNoise.SetFractalGain(0.5f);
+        m_heightNoise.SetFractalOctaves(5);
+        m_heightNoise.SetFractalLacunarity(2.2f);
+        m_heightNoise.SetFractalGain(0.45f);
 
         m_temperatureNoise.SetSeed(m_seed + 1000);
         m_temperatureNoise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
-        m_temperatureNoise.SetFrequency(0.003f);
+        m_temperatureNoise.SetFrequency(0.002f);
+        m_temperatureNoise.SetFractalType(FastNoiseLite::FractalType_FBm);
+        m_temperatureNoise.SetFractalOctaves(3);
+        m_temperatureNoise.SetFractalLacunarity(2.0f);
+        m_temperatureNoise.SetFractalGain(0.5f);
 
         m_humidityNoise.SetSeed(m_seed + 2000);
         m_humidityNoise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
-        m_humidityNoise.SetFrequency(0.004f);
+        m_humidityNoise.SetFrequency(0.0025f);
+        m_humidityNoise.SetFractalType(FastNoiseLite::FractalType_FBm);
+        m_humidityNoise.SetFractalOctaves(3);
+        m_humidityNoise.SetFractalLacunarity(2.0f);
+        m_humidityNoise.SetFractalGain(0.5f);
 
         m_continentalnessNoise.SetSeed(m_seed + 3000);
         m_continentalnessNoise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
-        m_continentalnessNoise.SetFrequency(0.0008f);
+        m_continentalnessNoise.SetFrequency(0.0005f);
         m_continentalnessNoise.SetFractalType(FastNoiseLite::FractalType_FBm);
-        m_continentalnessNoise.SetFractalOctaves(3);
+        m_continentalnessNoise.SetFractalOctaves(4);
+        m_continentalnessNoise.SetFractalLacunarity(2.0f);
+        m_continentalnessNoise.SetFractalGain(0.5f);
 
         m_erosionNoise.SetSeed(m_seed + 4000);
         m_erosionNoise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
-        m_erosionNoise.SetFrequency(0.005f);
+        m_erosionNoise.SetFrequency(0.006f);
+        m_erosionNoise.SetFractalType(FastNoiseLite::FractalType_FBm);
+        m_erosionNoise.SetFractalOctaves(4);
+        m_erosionNoise.SetFractalLacunarity(2.0f);
+        m_erosionNoise.SetFractalGain(0.45f);
 
         m_weirdnessNoise.SetSeed(m_seed + 5000);
         m_weirdnessNoise.SetNoiseType(FastNoiseLite::NoiseType_OpenSimplex2);
-        m_weirdnessNoise.SetFrequency(0.012f);
+        m_weirdnessNoise.SetFrequency(0.008f);
+        m_weirdnessNoise.SetFractalType(FastNoiseLite::FractalType_FBm);
+        m_weirdnessNoise.SetFractalOctaves(3);
+        m_weirdnessNoise.SetFractalLacunarity(2.0f);
+        m_weirdnessNoise.SetFractalGain(0.5f);
     }
+
 
     void TerrainGenerator::generate(ChunkPos chunkPos, Chunk& chunk, const BlockRegistry& blockRegistry, const BiomeRegistry& biomeRegistry) {
         std::vector<float> heightBuffer(CHUNK_WIDTH * CHUNK_DEPTH);
@@ -84,11 +103,17 @@ namespace Mineclone {
     BiomeTerrainParameters TerrainGenerator::sampleBiomeParameters(int worldX, int worldZ) const {
         BiomeTerrainParameters params{};
 
-        params.temperature = m_temperatureNoise.GetNoise(worldX * 0.003f, worldZ * 0.003f);
-        params.humidity = m_humidityNoise.GetNoise(worldX * 0.004f, worldZ * 0.004f);
-        params.continentalness = m_continentalnessNoise.GetNoise(worldX * 0.001f, worldZ * 0.001f);
-        params.erosion = m_erosionNoise.GetNoise(worldX * 0.005f, worldZ * 0.005f);
+        params.temperature = m_temperatureNoise.GetNoise(worldX * 0.002f, worldZ * 0.002f);
+        params.humidity = m_humidityNoise.GetNoise(worldX * 0.0025f, worldZ * 0.0025f);
+        params.continentalness = m_continentalnessNoise.GetNoise(worldX * 0.0005f, worldZ * 0.0005f);
+        params.erosion = m_erosionNoise.GetNoise(worldX * 0.006f, worldZ * 0.006f);
         params.weirdness = m_weirdnessNoise.GetNoise(worldX * 0.008f, worldZ * 0.008f);
+
+        params.temperature = std::clamp(params.temperature, -1.0f, 1.0f);
+        params.humidity = std::clamp(params.humidity, -1.0f, 1.0f);
+        params.continentalness = std::clamp(params.continentalness, -1.0f, 1.0f);
+        params.erosion = std::clamp(params.erosion, -1.0f, 1.0f);
+        params.weirdness = std::clamp(params.weirdness, -1.0f, 1.0f);
 
         return params;
     }
@@ -135,32 +160,33 @@ namespace Mineclone {
         const auto& bp = metadata->terrainParameters;
 
         int baseHeight = 64;
-        int amplitude = 20;
+        int amplitude = 25;
 
         float continentalFactor = (bp.continentalness + 1.0f) * 0.5f;
-        baseHeight += static_cast<int>((continentalFactor - 0.5f) * 25);
+        baseHeight += static_cast<int>((continentalFactor - 0.5f) * 35);
 
         float erosionFactor = (bp.erosion + 1.0f) * 0.5f;
-        amplitude += static_cast<int>((1.0f - erosionFactor) * 20);
+        amplitude += static_cast<int>((1.0f - erosionFactor) * 25);
 
         if (bp.temperature < -0.3f) {
-            baseHeight += static_cast<int>((bp.temperature + 0.3f) * -15);
-            amplitude += static_cast<int>((bp.temperature + 0.3f) * -10);
+            baseHeight += static_cast<int>((bp.temperature + 0.3f) * -12);
+            amplitude += static_cast<int>((bp.temperature + 0.3f) * -8);
         }
 
         float weirdnessFactor = bp.weirdness * bp.weirdness * (bp.weirdness > 0 ? 1 : -1);
-        amplitude += static_cast<int>(weirdnessFactor * 8);
+        amplitude += static_cast<int>(weirdnessFactor * 12);
 
         float normalizedHeight = (heightNoise + 1.0f) * 0.5f;
         int height = baseHeight + static_cast<int>(normalizedHeight * amplitude);
 
         if (bp.continentalness < -0.3f) {
             int waterLevel = 62;
-            height = std::min(height, waterLevel - static_cast<int>((bp.continentalness + 0.3f) * -10));
+            height = std::min(height, waterLevel - static_cast<int>((bp.continentalness + 0.3f) * -15));
         }
 
-        return std::clamp(height, 10, CHUNK_HEIGHT - 10);
+        return std::clamp(height, 8, CHUNK_HEIGHT - 8);
     }
+
 
     void TerrainGenerator::generateTerrainColumn(int x, int z, int height, BiomeId biome, Chunk &chunk, const BlockRegistry &blockRegistry,
                           const BiomeRegistry &biomeRegistry) {
@@ -173,10 +199,9 @@ namespace Mineclone {
         static BlockId snowId  = blockRegistry.getBlockId("snow");
 
         int surfaceLayers = 3;
-        if (metadata && metadata->terrainParameters.erosion > 0.4f) {
-            surfaceLayers = 2;
-        } else if (metadata && metadata->terrainParameters.erosion < -0.4f) {
-            surfaceLayers = 5;
+        if (metadata) {
+            surfaceLayers = 2 + static_cast<int>((0.5f - metadata->terrainParameters.erosion) * 4);
+            surfaceLayers = std::clamp(surfaceLayers, 2, 5);
         }
 
         for (int y = 0; y <= height; y++) {
@@ -191,25 +216,16 @@ namespace Mineclone {
                 bool isCoastal = metadata && metadata->terrainParameters.continentalness < -0.1f &&
                                 metadata->terrainParameters.continentalness > -0.5f;
 
-                if (isUnderwater || isCoastal || isDesert) {
-                    blockId = sandId;
-                } else if (isSnowy) {
-                    blockId = snowId;
-                } else if (isCold) {
-                    blockId = dirtId;
-                } else {
-                    blockId = grassId;
-                }
+                if (isUnderwater || isCoastal || isDesert) blockId = sandId;
+                else if (isSnowy) blockId = snowId;
+                else if (isCold) blockId = dirtId;
+                else blockId = grassId;
             } else if (y >= height - surfaceLayers) {
                 bool isDesert = metadata && metadata->terrainParameters.humidity < -0.2f &&
                                metadata->terrainParameters.temperature > 0.2f;
                 bool isCoastal = metadata && metadata->terrainParameters.continentalness < -0.1f;
-
-                if (isDesert || isCoastal) {
-                    blockId = sandId;
-                } else {
-                    blockId = dirtId;
-                }
+                if (isDesert || isCoastal) blockId = sandId;
+                else blockId = dirtId;
             } else {
                 blockId = stoneId;
             }

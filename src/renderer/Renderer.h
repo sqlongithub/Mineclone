@@ -45,7 +45,7 @@ namespace Mineclone {
         RenderQueue m_renderQueue;
         FrameData m_frameData{};
         UniformBuffer m_frameUBO;
-        glm::vec4 m_clearColor {0.23, 0.3, 0.3, 0};
+        glm::vec4 m_clearColor {0.5, 0.7, 1.0, 0};
 
         static RenderCommand m_lastCommandLastFrame;
 
