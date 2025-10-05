@@ -3,4 +3,4 @@
 	url = https://github.com/glfw/glfw.git
 [submodule "external/imgui"]
 	path = external/imgui
-	url = https://github.com/ocornut/imgui.git
+	url = https://github.com/ocornut/imgui.gitw

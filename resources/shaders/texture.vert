@@ -11,12 +11,14 @@ layout(location = 1) in vec2 aUV;
 layout(location = 2) in uint aFaceIndex; // face index (0-5)
 layout(location = 3) in uint aTextureIndex;
 layout(location = 4) in uint aTintIndex;
+layout(location = 5) in float aAO;
 
 out vec2 vUV;
 out vec3 vNormal;
 out vec3 vFragPos;
 out vec3 vTintColor;
 flat out uint vTexIndex;
+out float vAO;
 
 uniform mat4 uModel;
 uniform vec3 uBiomeTints[256];
@@ -33,6 +35,7 @@ const vec3 FACE_NORMALS[6] = vec3[](
 void main()
 {
     vUV = aUV;
+    vAO = aAO;
 
     vNormal = FACE_NORMALS[int(aFaceIndex)];
 

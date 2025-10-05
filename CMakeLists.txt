@@ -81,7 +81,15 @@ FetchContent_Declare(glaze
 FetchContent_MakeAvailable(glaze)
 
 
-add_executable(${PROJECT_NAME} src/main.cpp)
+add_executable(${PROJECT_NAME} src/main.cpp
+        src/common/physics/systems/CollisionSystem.cpp
+        src/common/physics/systems/CollisionSystem.h
+        src/common/physics/components/Collider.h
+        src/common/ecs/components/Velocity.h
+        src/common/physics/systems/PhysicsMovementSystem.cpp
+        src/common/physics/systems/PhysicsMovementSystem.h
+        src/common/physics/components/PhysicsProperties.h
+        src/common/physics/components/MoveIntent.h)
 
 
 target_compile_definitions(${PROJECT_NAME}

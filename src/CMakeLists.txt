@@ -1,7 +1,6 @@
-add_subdirectory(core)
-add_subdirectory(ecs)
-add_subdirectory(game)
-add_subdirectory(renderer)
+add_subdirectory(common)
+add_subdirectory(server)
+add_subdirectory(client)
 
 target_include_directories(mineclone PRIVATE
         ${CMAKE_CURRENT_SOURCE_DIR}
